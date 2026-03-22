@@ -1,0 +1,90 @@
+MiniECommerce/
+│
+├─ Areas
+│   ├─ Admin
+│   │   ├─ Controllers
+│   │   │   ├─ ProductsController.cs       # CRUD المنتجات
+│   │   │   ├─ CategoriesController.cs     # CRUD الفئات
+│   │   │   └─ OrdersController.cs         # إدارة الطلبات + تحديث الحالة
+│   │   └─ Views
+│   │       ├─ Products
+│   │       │   ├─ Index.cshtml
+│   │       │   ├─ Create.cshtml
+│   │       │   ├─ Edit.cshtml
+│   │       │   └─ Details.cshtml
+│   │       ├─ Categories
+│   │       │   ├─ Index.cshtml
+│   │       │   ├─ Create.cshtml
+│   │       │   └─ Edit.cshtml
+│   │       └─ Orders
+│   │           ├─ Index.cshtml
+│   │           └─ Details.cshtml
+│   │
+│   └─ Customer
+│       ├─ Controllers
+│       │   ├─ CatalogController.cs        # عرض المنتجات، البحث، فلترة، pagination
+│       │   ├─ CartController.cs           # إضافة/تعديل/حذف من السلة
+│       │   └─ OrdersController.cs         # Checkout + عرض الطلبات الخاصة بالمستخدم
+│       └─ Views
+│           ├─ Catalog
+│           │   ├─ Index.cshtml
+│           │   └─ Details.cshtml
+│           ├─ Cart
+│           │   ├─ Index.cshtml
+│           │   └─ PartialViews.cshtml
+│           └─ Orders
+│               ├─ Index.cshtml
+│               └─ Details.cshtml
+│
+├─ Controllers
+│   └─ HomeController.cs                    # الصفحة الرئيسية / Landing Page
+│
+├─ Models
+│   ├─ IdentityModels
+│   │   └─ ApplicationUser.cs               # extends IdentityUser (FullName, Address)
+│   ├─ Product.cs
+│   ├─ Category.cs
+│   ├─ Order.cs
+│   ├─ OrderItem.cs
+│   ├─ Address.cs
+│   └─ CartItem.cs
+│
+├─ ViewModels
+│   ├─ ProductListVM.cs
+│   ├─ ProductDetailsVM.cs
+│   ├─ CartVM.cs
+│   ├─ CheckoutVM.cs
+│   └─ OrderDetailsVM.cs
+│
+├─ Data
+│   └─ ApplicationDbContext.cs
+│
+├─ Interfaces
+│   ├─ Repositories
+│   │   ├─ IGenericRepository.cs
+│   │   ├─ IProductRepository.cs
+│   │   ├─ IOrderRepository.cs
+│   │   └─ ICategoryRepository.cs
+│   │
+│   └─ Services
+│       ├─ IProductService.cs
+│       ├─ IOrderService.cs
+│       └─ ICategoryService.cs
+│
+├─ Repositories
+│   ├─ ProductRepository.cs
+│   ├─ OrderRepository.cs
+│   └─ CategoryRepository.cs
+│
+├─ Services
+│   ├─ ProductService.cs   # implements IProductService
+│   ├─ OrderService.cs     # implements IOrderService
+│   └─ CategoryService.cs  # implements ICategoryService
+│
+├─ wwwroot
+│   ├─ css
+│   ├─ js
+│   └─ images
+│
+├─ appsettings.json
+└─ Program.cs

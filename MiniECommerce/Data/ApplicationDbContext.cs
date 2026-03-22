@@ -47,6 +47,9 @@ namespace MiniECommerce.Data
                         .WithMany(c => c.ChildrenCategories)
                         .HasForeignKey(c => c.ParentCategoryId)
                         .OnDelete(DeleteBehavior.ClientSetNull);
+
+                category.HasIndex(c => c.CategoryName)
+                        .IsUnique();
             });
             builder.Entity<Product>(product =>
             {
@@ -54,6 +57,9 @@ namespace MiniECommerce.Data
                        .WithMany(p => p.Products)
                        .HasForeignKey(p => p.ProductId)
                        .OnDelete(DeleteBehavior.Restrict);
+
+                product.HasIndex(p => p.SKU)
+                       .IsUnique();
             });
             builder.Entity<Order>(order =>
             {
@@ -66,6 +72,10 @@ namespace MiniECommerce.Data
                      .WithMany(o=>o.Orders)
                      .HasForeignKey(o=>o.ApplicationUserId)
                      .OnDelete(DeleteBehavior.Restrict);
+
+                order.HasIndex(o => o.OrderNumber)
+                     .IsUnique();
+                    
             });
             builder.Entity<OrderItem>(item =>
             {
@@ -86,7 +96,11 @@ namespace MiniECommerce.Data
                        .HasForeignKey(addr => addr.UserId)
                        .OnDelete(DeleteBehavior.Restrict);
             });
-
+            builder.Entity<ApplicationUser>(entity =>
+            {
+                entity.HasIndex(user => user.Email)
+                      .IsUnique();
+            });
             base.OnModelCreating(builder);    
         }
     }

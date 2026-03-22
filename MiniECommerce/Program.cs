@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.Configuration;
-using MiniECommerce.Data;
-using MiniECommerce.Models.IdentityModels;
 
 namespace MiniECommerce
 {
@@ -68,10 +66,26 @@ namespace MiniECommerce
                 options.Cookie.SameSite = SameSiteMode.Lax;  // CSRF protection 'balance becasue it allow get request from other sites'  
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);  // How long persistent cookies last
             });
-//===========================================================================================================================
+            //===========================================================================================================================
             //---------------------- Add-Dependency_Injection HERE ----------------------------
 
+                #region InterfacesInjection
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
+            #endregion
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddSession();
             //---------------------------------------------------
 
 
@@ -88,9 +102,9 @@ namespace MiniECommerce
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseSession();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
