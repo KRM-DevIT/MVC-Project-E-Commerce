@@ -1,6 +1,6 @@
 ﻿namespace MiniECommerce.Results
 {
-  public enum StockStatus
+    public enum StockStatus
     {
         InStock ,
         OutOfStock,
@@ -18,14 +18,12 @@
         ProductNotFound,
         OutOfStock
     }
-
     public enum UpdateQuantityResult
     {
         Success,
         ProductNotFound,
         UnAvailableQuantity
     }
-
     public class CheckoutResult
     {
         public bool Success { get; set; }

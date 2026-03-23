@@ -74,7 +74,7 @@ namespace MiniECommerce
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
@@ -137,7 +137,7 @@ namespace MiniECommerce
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
-                await roleManager.CreateAsync(new ApplicationRole {Name="Admin",NormalizedName="ADMIN"});
+                await roleManager.CreateAsync(new ApplicationRole { RoleDescription="Super Admin Role -- Do AnyThing",Id=Guid.NewGuid().ToString(),Name="Admin"});
             }
 
             var email = "admin@commerce.com";
@@ -149,7 +149,9 @@ namespace MiniECommerce
                 {
                     UserName = email,
                     Email = email,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    FirstName = "Admin",
+                    LastName = "User"
                 };
 
                 await userManager.CreateAsync(user, "Admin123!@#");
