@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MiniECommerce.Models
 {
-    public enum OrderStatus { Placed = 0, OutForDelivery = 1,delivered= 2 , Cancelled = 3 }
 
     public class Order
     {
@@ -20,7 +19,7 @@ namespace MiniECommerce.Models
 
         public OrderStatus Status { get; set; } = OrderStatus.Placed; // in EF-Core it will be stored as int we will edit this in modelcreating to store it as stirng
 
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public DateTime OrderDate { get; set; }
 
         [Range(0,1000_000)]
         [DataType(DataType.Currency)]

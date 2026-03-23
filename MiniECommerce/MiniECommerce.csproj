@@ -13,7 +13,6 @@
     <Folder Include="Areas\Customer\Controllers\" />
     <Folder Include="Areas\Customer\Views\" />
     <Folder Include="DTO\" />
-    <Folder Include="ViewModels\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,3 +5,4 @@ global using MiniECommerce.Data;
 global using ecommerce.Repository;
 global using MiniECommerce.Models.IdentityModels;
 global using MiniECommerce.Repositories;
+global using MiniECommerce.Results;

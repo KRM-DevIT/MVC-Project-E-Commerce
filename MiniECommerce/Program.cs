@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.Configuration;
+using MiniECommerce.Services;
 
 namespace MiniECommerce
 {
@@ -83,9 +84,11 @@ namespace MiniECommerce
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAddressService, AddressService>();
             #endregion
-            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHttpContextAccessor(); // to be able to access the httpcontext in which we have session
 
             builder.Services.AddSession();
+
+            builder.Services.AddScoped<CartService>();
             //---------------------------------------------------
 
 

@@ -7,5 +7,7 @@
         List<Order> GetAllOrders();
         bool UpdateOrderStatus(int orderId, OrderStatus status); 
         bool CreateOrder(Order order);
+
+        string GetUniqueOrderNumber();
     }
 }

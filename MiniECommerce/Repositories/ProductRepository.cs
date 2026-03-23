@@ -47,5 +47,10 @@ namespace MiniECommerce.Repositories
 
             return query.ToList();
         }
+
+        public List<Product> FilterProductsByIds(List<int> productIds)
+        {
+            return _context.Products.Where(p=>productIds.Contains(p.ProductId)).ToList();
+        }
     }
 }

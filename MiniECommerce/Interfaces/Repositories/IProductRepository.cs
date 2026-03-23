@@ -8,5 +8,7 @@
         List<Product> ProductsPaginated(int pageNumber, int pageSize);
 
         List<Product> SearchProducts(string keyword);
+
+        List<Product> FilterProductsByIds(List<int> productIds);
     }
 }

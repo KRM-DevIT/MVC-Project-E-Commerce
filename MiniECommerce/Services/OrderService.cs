@@ -49,6 +49,10 @@ namespace MiniECommerce.Interfaces.Services
         {
            return _repository.GetOrdersForUser(userId);
         }
-     
+
+        public string GetUniqueOrderNumber()
+        {
+            return "ORD" + Guid.NewGuid().ToString().Substring(2, 10);
+        }
     }
 }

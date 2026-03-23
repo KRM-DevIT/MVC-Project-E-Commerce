@@ -85,5 +85,10 @@ namespace MiniECommerce.Interfaces.Services
                 return false;
             }
         }
+
+        public List<Product> GetProductsByIDs(List<int> productIds)
+        {
+            return _repository.FilterProductsByIds(productIds);
+        }
     }
 }
