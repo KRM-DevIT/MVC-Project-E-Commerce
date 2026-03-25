@@ -13,19 +13,19 @@ namespace MiniECommerce
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddDbContext<ApplicationDbContext>(options=>
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 String? ConnectionString = builder.Configuration["ConnectionStrings:ConnectionString"];
-                if(ConnectionString != null)
+                if (ConnectionString != null)
                     options.UseSqlServer(ConnectionString);
                 else
                 {
-                    throw new InvalidConfigurationException("Couldn't Retrieve Connection String Properly from the AppSettings.json"); 
+                    throw new InvalidConfigurationException("Couldn't Retrieve Connection String Properly from the AppSettings.json");
                 }
             });
-            
-            builder.Services.AddIdentity<ApplicationUser,ApplicationRole>
-                (options=>{
+
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>
+                (options => {
                     options.Password.RequireDigit = true;              // Require at least one number (0-9)
                     options.Password.RequireLowercase = true;          // Require at least one lowercase letter
                     options.Password.RequireUppercase = true;          // Require at least one uppercase letter
@@ -43,8 +43,8 @@ namespace MiniECommerce
                     options.User.AllowedUserNameCharacters =
                         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 
-                    
-                    options.SignIn.RequireConfirmedEmail = false;      
+
+                    options.SignIn.RequireConfirmedEmail = false;
 
                     // TOKEN OPTIONS
                     options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
@@ -55,22 +55,38 @@ namespace MiniECommerce
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
-                // LoginPath: Where to redirect when [Authorize] fails due to anonymous user
-                options.LoginPath = "/Account/Login";
-
-                // AccessDeniedPath: Where to redirect when user is authenticated but lacks required role/permission
-                options.AccessDeniedPath = "/Account/AccessDenied";
-
                 // Cookie security settings
-                options.Cookie.HttpOnly = true;  // Prevents JavaScript from accessing cookie (XSS protection)
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;  // Require HTTPS in production
-                options.Cookie.SameSite = SameSiteMode.Lax;  // CSRF protection 'balance becasue it allow get request from other sites'  
-                options.ExpireTimeSpan = TimeSpan.FromDays(7);  // How long persistent cookies last
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    var area = context.Request.RouteValues["area"]?.ToString();
+
+                    string loginPath;
+              
+                        if (area == "Admin")
+                        {
+                            loginPath = "/Admin/Account/AdminLogin";
+                        }
+
+                        else
+                        {
+                            loginPath = "/Customer/Account/Login";
+                        }
+
+                    context.Response.Redirect(loginPath + "?ReturnUrl=" + Uri.EscapeDataString(context.Request.Path));               
+                    return Task.CompletedTask;
+                };
+
             });
+
             //===========================================================================================================================
             //---------------------- Add-Dependency_Injection HERE ----------------------------
 
-                #region InterfacesInjection
+            #region InterfacesInjection
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -89,8 +105,8 @@ namespace MiniECommerce
             builder.Services.AddSession();
 
             builder.Services.AddScoped<CartService>();
-            //---------------------------------------------------
 
+            //======================================
 
             var app = builder.Build();
 
@@ -105,9 +121,13 @@ namespace MiniECommerce
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseSession();
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -137,7 +157,7 @@ namespace MiniECommerce
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
-                await roleManager.CreateAsync(new ApplicationRole { RoleDescription="Super Admin Role -- Do AnyThing",Id=Guid.NewGuid().ToString(),Name="Admin"});
+                await roleManager.CreateAsync(new ApplicationRole { RoleDescription = "Super Admin Role -- Do AnyThing" });
             }
 
             var email = "admin@commerce.com";

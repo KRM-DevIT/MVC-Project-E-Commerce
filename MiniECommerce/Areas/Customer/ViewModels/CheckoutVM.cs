@@ -1,4 +1,4 @@
-﻿namespace MiniECommerce.ViewModels
+﻿namespace MiniECommerce.Areas.Customer.ViewModels
 {
     public class CheckoutVM
     {

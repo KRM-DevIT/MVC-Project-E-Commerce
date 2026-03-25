@@ -1,7 +1,7 @@
 ﻿
 using Azure.Core;
 
-namespace MiniECommerce.Interfaces.Services
+namespace MiniECommerce.Services
 {
     public class AddressService : IAddressService
     {

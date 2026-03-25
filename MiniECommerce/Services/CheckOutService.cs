@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using MiniECommerce.Areas.Customer.ViewModels;
 using MiniECommerce.Extensions;
 using MiniECommerce.Models;
-using MiniECommerce.ViewModels;
 using System;
 using System.Linq.Expressions;
 using System.Transactions;

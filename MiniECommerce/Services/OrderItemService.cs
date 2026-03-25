@@ -1,5 +1,4 @@
-﻿
-namespace MiniECommerce.Interfaces.Services
+﻿namespace MiniECommerce.Services
 {
     public class OrderItemService : IOrderItemService
     {

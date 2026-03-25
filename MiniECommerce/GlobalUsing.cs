@@ -2,7 +2,11 @@
 global using MiniECommerce.Interfaces.Services;
 global using MiniECommerce.Interfaces.Repositories;
 global using MiniECommerce.Data;
-global using ecommerce.Repository;
-global using MiniECommerce.Models.IdentityModels;
 global using MiniECommerce.Repositories;
+global using MiniECommerce.Models.IdentityModels;
 global using MiniECommerce.Results;
+global using MiniECommerce.Areas.Admin.ViewModels.AccountViewModels;
+global using MiniECommerce.Areas.Customer.ViewModels.AccountViewModels;
+global using MiniECommerce.Areas.Admin.ViewModels;
+global using MiniECommerce.Areas.Customer.ViewModels;
+global using MiniECommerce.Controllers;

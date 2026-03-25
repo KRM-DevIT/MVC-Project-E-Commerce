@@ -2,7 +2,7 @@
 using MiniECommerce.Interfaces.Repositories;
 using System;
 
-namespace ecommerce.Repository
+namespace MiniECommerce.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {

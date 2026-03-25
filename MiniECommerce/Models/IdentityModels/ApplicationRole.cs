@@ -5,6 +5,10 @@ namespace MiniECommerce.Models.IdentityModels
 {
     public class ApplicationRole : IdentityRole<string>
     {
+        public ApplicationRole()
+        {
+            Id = Guid.NewGuid().ToString(); 
+        }
 
         [StringLength(100,ErrorMessage ="Can't Exceed 100 in Description")]
         public string? RoleDescription { get; set; }
