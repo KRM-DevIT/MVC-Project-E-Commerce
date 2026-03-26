@@ -26,5 +26,27 @@ namespace MiniECommerce.Repositories
         {
             return _context.Categories.Where(c=>c.CategoryName == Name).FirstOrDefault();
         }
+
+        public List<Category> GetAllWithParent()
+        {
+            return _context.Categories.Include(c=>c.ParentCategory).ToList();
+        }
+
+        public Category? GetByIdWithParent(int id)
+        {
+            return _context.Categories
+                .Where(c => c.CategoryId == id)
+                .Include(c => c.ParentCategory)
+                .FirstOrDefault();
+        }
+
+        public Category GetCategoryWithChildren(int id)
+        {
+            var category = _context.Categories
+                        .Include(c => c.ChildrenCategories)
+                        .First(c => c.CategoryId == id);
+
+            return category;
+        }
     }
 }

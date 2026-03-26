@@ -4,5 +4,7 @@
 }
 
 <h1>404 - Page Not Found</h1>
-<p>الصفحة اللي بتدور عليها مش موجودة.</p>
+<p class="text-danger">
+    @ViewBag.message
+</p>
 <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Go Home</a>

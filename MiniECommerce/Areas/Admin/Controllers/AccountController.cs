@@ -84,7 +84,8 @@ namespace MiniECommerce.Areas.Admin.Controllers
             // If already authenticated, no need to show login page
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home" , new {area=""});
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
             }
 
             // Store returnUrl in ViewBag so the form can post it back
@@ -127,7 +128,8 @@ namespace MiniECommerce.Areas.Admin.Controllers
                 {
                     return LocalRedirect(returnUrl);
                 }
-                return RedirectToAction(nameof(HomeController.Index), "Home" ,new { area = "" });
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
             }
 
             if (result.IsNotAllowed)

@@ -27,5 +27,7 @@
         List<Product> GetProductsWithPagination(int pageNumber, int pageSize);
 
         List<Product> GetProductsByIDs(List<int> productIds);
+
+        int GetProductCount();
     }
 }

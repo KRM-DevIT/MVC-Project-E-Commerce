@@ -1,0 +1,88 @@
+﻿@model ProductListViewModel
+
+<!-- Products Grid -->
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+    @foreach (var product in Model.Products)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <img class="card-img-top"
+                     src="@(product.ImageUrl ?? "/images/placeholder.png")"
+                     alt="@product.ProductName"
+                     style="height: 200px; object-fit: cover;" />
+                <div class="card-body">
+                    <h5 class="card-title">@product.ProductName</h5>
+                    <p class="card-text">@product.Description</p>
+                    <strong>$@product.CurrentPrice.ToString("N2")</strong>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        Added @product.CreatedAt.ToString("MMM dd, yyyy")
+                    </small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Pagination Bar -->
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+    <!-- Prev / Page Numbers / Next -->
+    <nav>
+        <ul class="pagination mb-0">
+
+            <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageNumber="@(Model.CurrentPage - 1)"
+                   asp-route-pageSize="@Model.PageSize">
+                    &laquo; Prev
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@i"
+                       asp-route-pageSize="@Model.PageSize">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pageNumber="@(Model.CurrentPage + 1)"
+                   asp-route-pageSize="@Model.PageSize">
+                    Next &raquo;
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+    <!-- Jump to page box -->
+    <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+        <label class="mb-0 text-muted" style="font-size:.85rem;">Go to page:</label>
+        <input type="number"
+               name="pageNumber"
+               min="1"
+               max="@Model.TotalPages"
+               value="@Model.CurrentPage"
+               class="form-control form-control-sm"
+               style="width: 70px;" />
+        <button type="submit" class="btn btn-sm btn-outline-primary">Go</button>
+    </form>
+
+    <!-- Info text -->
+    <span class="text-muted" style="font-size:.85rem;">
+        Page @Model.CurrentPage of @Model.TotalPages
+        &nbsp;|&nbsp; @Model.TotalCount total products
+    </span>
+
+</div>

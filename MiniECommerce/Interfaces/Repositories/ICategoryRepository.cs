@@ -7,5 +7,8 @@ namespace MiniECommerce.Interfaces.Repositories
         List<Category> CategoriesWithProducts();
 
         Category? CategoryByName(string Name);
+        List<Category> GetAllWithParent();
+        Category? GetByIdWithParent(int id);
+        Category GetCategoryWithChildren(int id);
     }
 }

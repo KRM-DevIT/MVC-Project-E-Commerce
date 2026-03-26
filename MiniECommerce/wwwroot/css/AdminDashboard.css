@@ -1,0 +1,290 @@
+﻿:root {
+    --card-radius: 12px;
+    --accent: #4f8ef7;
+    --accent-green: #22c55e;
+    --accent-yellow: #f59e0b;
+    --accent-red: #ef4444;
+    --accent-purple: #a855f7;
+    --surface: #1e2433;
+    --surface-2: #252d3d;
+    --border: rgba(255,255,255,0.07);
+    --text-muted: #8b93a7;
+}
+.body-dark {
+    background: #36454F !important;
+    color: #e2e8f0;
+}
+/* ── Page header ───────────────────────────────────── */
+.dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+    .dash-header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: #f1f5f9;
+        margin: 0;
+    }
+
+    .dash-header .date-badge {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: .8rem;
+    }
+
+/* ── Stat cards ────────────────────────────────────── */
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    padding: 1.4rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(0,0,0,.35);
+    }
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.icon-blue {
+    background: rgba(79,142,247,.15);
+    color: var(--accent);
+}
+
+.icon-green {
+    background: rgba(34,197,94,.15);
+    color: var(--accent-green);
+}
+
+.icon-yellow {
+    background: rgba(245,158,11,.15);
+    color: var(--accent-yellow);
+}
+
+.icon-red {
+    background: rgba(239,68,68,.15);
+    color: var(--accent-red);
+}
+
+.icon-purple {
+    background: rgba(168,85,247,.15);
+    color: var(--accent-purple);
+}
+
+.stat-info .label {
+    font-size: .75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 3px;
+}
+
+.stat-info .value {
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #f1f5f9;
+}
+
+.stat-info .sub {
+    font-size: .75rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+/* ── Quick actions ─────────────────────────────────── */
+.quick-actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.quick-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .15s, transform .15s;
+    border: none;
+}
+
+    .quick-btn:hover {
+        opacity: .88;
+        transform: translateY(-1px);
+    }
+
+.quick-btn-primary {
+    background: var(--accent);
+    color: #fff;
+}
+
+.quick-btn-green {
+    background: var(--accent-green);
+    color: #fff;
+}
+
+.quick-btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: #cbd5e1;
+}
+
+/* ── Panel cards ───────────────────────────────────── */
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+}
+
+    .panel-header h6 {
+        margin: 0;
+        font-weight: 700;
+        font-size: .9rem;
+        color: #f1f5f9;
+        letter-spacing: .2px;
+    }
+
+    .panel-header a {
+        font-size: .78rem;
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+        .panel-header a:hover {
+            text-decoration: underline;
+        }
+
+/* ── Tables ────────────────────────────────────────── */
+.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+}
+
+    .dash-table thead th {
+        padding: .65rem 1.4rem;
+        text-transform: uppercase;
+        font-size: .7rem;
+        letter-spacing: .6px;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+        font-weight: 600;
+    }
+
+    .dash-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background .12s;
+    }
+
+        .dash-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .dash-table tbody tr:hover {
+            background: var(--surface-2);
+        }
+
+    .dash-table tbody td {
+        padding: .75rem 1.4rem;
+        color: #cbd5e1;
+        vertical-align: middle;
+    }
+
+        .dash-table tbody td strong {
+            color: #f1f5f9;
+        }
+
+/* ── Status badges ─────────────────────────────────── */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .3px;
+}
+
+.status-placed {
+    background: rgba(79,142,247,.18);
+    color: #93bbfd;
+}
+
+.status-outfordelivery {
+    background: rgba(245,158,11,.18);
+    color: #fcd34d;
+}
+
+.status-delivered {
+    background: rgba(34,197,94,.18);
+    color: #86efac;
+}
+
+.status-cancelled {
+    background: rgba(239,68,68,.18);
+    color: #fca5a5;
+}
+
+/* ── Stock pill ────────────────────────────────────── */
+.stock-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    font-size: .82rem;
+}
+
+.stock-critical {
+    color: var(--accent-red);
+}
+
+.stock-low {
+    color: var(--accent-yellow);
+}
+
+.stock-ok {
+    color: var(--accent-green);
+}
+
+/* ── Empty state ───────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 2.5rem;
+    color: var(--text-muted);
+    font-size: .85rem;
+}

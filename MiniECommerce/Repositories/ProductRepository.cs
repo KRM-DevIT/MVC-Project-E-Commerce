@@ -52,5 +52,10 @@ namespace MiniECommerce.Repositories
         {
             return _context.Products.Where(p=>productIds.Contains(p.ProductId)).ToList();
         }
+
+        public int GetProductsTotalCount()
+        {
+            return _context.Products.Count();
+        }
     }
 }

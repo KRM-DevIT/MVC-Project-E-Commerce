@@ -1,0 +1,210 @@
+@model DashboardViewModel
+@using MiniECommerce.Results
+
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["BodyClass"] = "body-dark";  
+}
+
+<div class="dash-header">
+    <div>
+        <h1>&#9881; Dashboard</h1>
+        <span style="color:var(--text-muted);font-size:.82rem;">
+            Welcome back, @User.Identity?.Name
+        </span>
+    </div>
+    <span class="date-badge">@DateTime.Now.ToString("dddd, MMM dd yyyy")</span>
+</div>
+
+<!-- ── Stat Cards ───────────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <div class="col-6 col-xl-2-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue">&#128230;</div>
+            <div class="stat-info">
+                <div class="label">Products</div>
+                <div class="value">@Model.TotalProducts</div>
+                <div class="sub">@Model.ActiveProducts active</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-xl-2-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-purple">&#128203;</div>
+            <div class="stat-info">
+                <div class="label">Total Orders</div>
+                <div class="value">@Model.TotalOrders</div>
+                <div class="sub">all time</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-xl-2-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-yellow">&#9203;</div>
+            <div class="stat-info">
+                <div class="label">Pending</div>
+                <div class="value">@Model.PendingOrders</div>
+                <div class="sub">awaiting action</div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="col-6 col-xl-2-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue">&#128100;</div>
+            <div class="stat-info">
+                <div class="label">Customers</div>
+                <div class="value">@Model.TotalCustomers</div>
+                <div class="sub">active accounts</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Quick Actions ────────────────────────────────────────── -->
+<div class="quick-actions">
+    <a asp-area="Admin" asp-controller="Product" asp-action="Create"
+       class="quick-btn quick-btn-primary">
+        &#43; Add Product
+    </a>
+    <a asp-area="Admin" asp-controller="Category" asp-action="Create"
+       class="quick-btn quick-btn-green">
+        &#43; Add Category
+    </a>
+    <a asp-area="Admin" asp-controller="Category" asp-action="Index"
+       class="quick-btn quick-btn-outline">
+        ♻ All Categories
+    </a>
+    <a asp-area="Admin" asp-controller="Product" asp-action="Index"
+       class="quick-btn quick-btn-outline">
+        &#128230; All Products
+    </a>
+    <a asp-area="Admin" asp-controller="Order" asp-action="Index"
+       class="quick-btn quick-btn-outline">
+        &#128203; All Orders
+    </a>
+    <a asp-area="Admin" asp-controller="Role" asp-action="Index"
+       class="quick-btn quick-btn-outline">
+        &#128737; Manage Roles
+    </a>
+</div>
+
+<!-- ── Two column tables ────────────────────────────────────── -->
+<div class="row g-3">
+
+    <!-- Recent Orders -->
+    <div class="col-lg-7">
+        <div class="panel">
+            <div class="panel-header">
+                <h6>&#128203; Recent Orders</h6>
+                <a asp-area="Admin" asp-controller="Order" asp-action="Index">View all &rarr;</a>
+            </div>
+            @if (!Model.RecentOrders.Any())
+            {
+                <div class="empty-state">No orders yet.</div>
+            }
+            else
+            {
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td><strong>@order.OrderNumber</strong></td>
+                                <td>@order.CustomerName</td>
+                                <td>$@order.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    @{
+                                        var badgeClass = order.Status switch
+                                        {
+                                            OrderStatus.Placed          => "status-placed",
+                                            OrderStatus.OutForDelivery  => "status-outfordelivery",
+                                            OrderStatus.delivered       => "status-delivered",
+                                            OrderStatus.Cancelled       => "status-cancelled",
+                                            _                           => "status-placed"
+                                        };
+                                        var badgeLabel = order.Status switch
+                                        {
+                                            OrderStatus.Placed          => "Placed",
+                                            OrderStatus.OutForDelivery  => "Out for Delivery",
+                                            OrderStatus.delivered       => "Delivered",
+                                            OrderStatus.Cancelled       => "Cancelled",
+                                            _                           => order.Status.ToString()
+                                        };
+                                    }
+                                    <span class="status-badge @badgeClass">@badgeLabel</span>
+                                </td>
+                                <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="col-lg-5">
+        <div class="panel">
+            <div class="panel-header">
+                <h6>&#9888; Low Stock Alert</h6>
+                <a asp-area="Admin" asp-controller="Product" asp-action="Index">View all &rarr;</a>
+            </div>
+            @if (!Model.LowStockProducts.Any())
+            {
+                <div class="empty-state">&#10003; All products are well stocked.</div>
+            }
+            else
+            {
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.LowStockProducts)
+                        {
+                            <tr>
+                                <td><strong>@product.ProductName</strong></td>
+                                <td>@(product.CategoryName ?? "—")</td>
+                                <td>
+                                    @{
+                                        var stockClass = product.StockQuantity == 0 ? "stock-critical"
+                                                       : product.StockQuantity <= 3 ? "stock-critical"
+                                                       : product.StockQuantity <= 6 ? "stock-low"
+                                                       : "stock-ok";
+                                        var stockIcon  = product.StockQuantity == 0 ? "&#8855;"
+                                                       : product.StockQuantity <= 3 ? "&#9650;"
+                                                       : "&#9651;";
+                                    }
+                                    <span class="stock-pill @stockClass">
+                                        @stockIcon @product.StockQuantity
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+</div>

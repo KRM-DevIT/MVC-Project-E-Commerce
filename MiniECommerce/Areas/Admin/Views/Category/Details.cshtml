@@ -1,0 +1,48 @@
+﻿@model Category
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+            Category Details
+        </div>
+
+        <div class="card-body">
+
+            <h4 class="card-title">@Model.CategoryName</h4>
+
+            <p class="card-text">
+                <strong>Parent Category:</strong>
+
+                @if (Model.ParentCategoryId == null)
+                {
+                    <span class="text-muted">None</span>
+                }
+                else
+                {
+                    <span>@Model.ParentCategory?.CategoryName</span>
+                }
+
+            </p>
+
+        </div>
+
+        <div class="card-footer">
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.CategoryId"
+               class="btn btn-primary">
+                Edit
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

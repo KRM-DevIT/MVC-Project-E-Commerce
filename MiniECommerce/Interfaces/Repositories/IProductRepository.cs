@@ -10,5 +10,7 @@
         List<Product> SearchProducts(string keyword);
 
         List<Product> FilterProductsByIds(List<int> productIds);
+
+        int GetProductsTotalCount();
     }
 }

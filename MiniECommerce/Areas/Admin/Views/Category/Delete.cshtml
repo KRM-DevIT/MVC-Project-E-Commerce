@@ -1,0 +1,41 @@
+﻿@model Category
+
+<div class="container mt-5">
+
+    <div class="card border-danger">
+
+        <div class="card-header bg-danger text-white">
+            Delete Category
+        </div>
+
+        <div class="card-body">
+
+            <h5>
+                Are you sure you want to delete
+                <strong>@Model.CategoryName</strong> ?
+            </h5>
+
+        </div>
+
+        <div class="card-footer">
+
+            <form asp-action="Delete" method="post">
+
+                <input type="hidden" asp-for="CategoryId" />
+
+                <button class="btn btn-danger">
+                    Delete
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,4 +1,6 @@
-﻿namespace MiniECommerce.Services
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace MiniECommerce.Services
 {
     public class CategoryService : ICategoryService
     {
@@ -9,6 +11,7 @@
             _repository = categoryRepository;
         }
 
+      
         public bool CreateNewCategory(Category category)
         {
             var categoryExits = _repository.CheckUniquness(category.CategoryName);
@@ -26,8 +29,9 @@
 
         public bool DeleteCategory(int id)
         {
-            var categoryTobeDeleted = _repository.GetById(id);
-            
+           var categoryTobeDeleted = _repository.GetCategoryWithChildren(id); 
+            // due to setclientNULL better use restrict or setnull next time
+
             if (categoryTobeDeleted == null) 
                 return false;
 
@@ -66,6 +70,28 @@
                 return true;
             }
             catch  { return false;     }
+        }
+
+        public List<SelectListItem> CategoryDropDownList()
+        {
+            var categories = _repository.GetAll();
+            var CategorySelectListItem = categories.Select(c => new SelectListItem
+            {
+                Value = c.CategoryId.ToString(),
+                Text = c.CategoryName
+            }).ToList();
+
+            return CategorySelectListItem;
+        }
+
+        public List<Category> GetAllCategoriesWithParent()
+        {
+           return _repository.GetAllWithParent();
+        }
+
+        public Category? GetCategoryByIdWithParent(int id)
+        {
+           return _repository.GetByIdWithParent(id);
         }
     }
 }

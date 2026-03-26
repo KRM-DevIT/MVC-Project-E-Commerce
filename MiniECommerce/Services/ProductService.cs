@@ -89,5 +89,10 @@
         {
             return _repository.FilterProductsByIds(productIds);
         }
+
+        public int GetProductCount()
+        {
+            return _repository.GetProductsTotalCount();
+        }
     }
 }

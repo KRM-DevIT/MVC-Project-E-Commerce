@@ -1,4 +1,6 @@
-﻿namespace MiniECommerce.Interfaces.Services
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace MiniECommerce.Interfaces.Services
 {
     public interface ICategoryService
     {
@@ -9,6 +11,8 @@
         bool UpdateCategory(Category category);
         bool DeleteCategory(int id);
         List<Category> GetCategoriesWithProducts();
-
+        List<SelectListItem> CategoryDropDownList();
+        List<Category> GetAllCategoriesWithParent();
+        Category? GetCategoryByIdWithParent(int id);
     }
 }

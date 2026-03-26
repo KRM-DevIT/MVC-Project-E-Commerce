@@ -6,23 +6,18 @@
     <div class="container">
         <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">eCommerce</a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 </li>
-                <li class="nav-item">
+                @* <li class="nav-item">
                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </li>
+                </li> *@
             </ul>
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                @if (!User.Identity.IsAuthenticated)
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-3">
+                @if (!User.Identity!.IsAuthenticated) // if not authenticated yet
                 {
                     <li class="nav-item me-2">
                         <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Account" asp-action="AdminLogin">
@@ -42,6 +37,22 @@
                             <button type="submit" class="btn btn-danger">Logout</button>
                         </form>
                     </li>
+                    @if (User.IsInRole("Admin")) 
+                    {
+                        <li class="nav-item">
+                            <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                Admin Dashboard 🔰
+                            </a>
+                        </li>
+                    }
+                    else // not auth and not admin 
+                    {
+                        <li class="nav-item">
+                            <a class="btn btn-outline-secondary" asp-area="Customer" asp-controller="Account" asp-action="Login">
+                                Customer Dashboard 🌐
+                            </a>
+                        </li>
+                    }
                 }
             </ul>
         </div>
