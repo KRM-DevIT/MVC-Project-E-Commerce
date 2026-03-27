@@ -157,7 +157,7 @@ namespace MiniECommerce
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
-                await roleManager.CreateAsync(new ApplicationRole { RoleDescription = "Super Admin Role -- Do AnyThing" });
+                await roleManager.CreateAsync(new ApplicationRole { Name = "Admin",RoleDescription = "Super Admin Role -- Do AnyThing" });
             }
 
             var email = "admin@commerce.com";

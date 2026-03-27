@@ -55,7 +55,7 @@ namespace MiniECommerce.Data
             {
                 product.HasOne(p => p.Category)
                        .WithMany(p => p.Products)
-                       .HasForeignKey(p => p.ProductId)
+                       .HasForeignKey(p => p.CategoryId)
                        .OnDelete(DeleteBehavior.Restrict);
 
                 product.HasIndex(p => p.SKU)

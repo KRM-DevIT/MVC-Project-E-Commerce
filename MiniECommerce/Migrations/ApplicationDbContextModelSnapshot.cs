@@ -387,7 +387,10 @@ namespace MiniECommerce.Migrations
             modelBuilder.Entity("MiniECommerce.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -422,6 +425,8 @@ namespace MiniECommerce.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ProductId");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("SKU")
                         .IsUnique()
@@ -543,7 +548,7 @@ namespace MiniECommerce.Migrations
                 {
                     b.HasOne("MiniECommerce.Models.Category", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

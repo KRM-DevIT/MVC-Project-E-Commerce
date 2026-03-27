@@ -1,4 +1,6 @@
-﻿namespace MiniECommerce.Interfaces.Services
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+
+namespace MiniECommerce.Interfaces.Services
 {
     public interface IProductService
     {
@@ -29,5 +31,11 @@
         List<Product> GetProductsByIDs(List<int> productIds);
 
         int GetProductCount();
+
+        string GenerateUniqueSKU(string productName , string categoryName);
+
+        // Image handling
+        Task<(bool Success, string? FilePath, string? Error)> SaveImageAsync(IFormFile file);
+        void DeleteImage(string? filePath);
     }
 }
