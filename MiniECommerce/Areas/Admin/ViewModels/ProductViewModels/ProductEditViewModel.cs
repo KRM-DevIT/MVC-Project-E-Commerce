@@ -23,13 +23,10 @@ namespace MiniECommerce.Areas.Admin.ViewModels.ProductViewModels
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public string? Description { get; set; }
 
-        // Read-only — shown in view but not editable
         public string? SKU { get; set; }
 
-        // Existing image path from DB — shown as current image
         public string? ExistingImageUrl { get; set; }
 
-        // New file upload — optional, replaces existing if provided
         [Display(Name = "Replace Image")]
         public IFormFile? ImageFile { get; set; }
 

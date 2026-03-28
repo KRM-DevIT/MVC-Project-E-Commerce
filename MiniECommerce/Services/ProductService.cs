@@ -61,7 +61,7 @@ namespace MiniECommerce.Services
                 return;
 
             // Convert relative URL  /images/abc.jpg  →  physical path
-            var fullPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/'));
+            var fullPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/')); // because the webrootpath add / at end
 
             if (File.Exists(fullPath))
                 File.Delete(fullPath);

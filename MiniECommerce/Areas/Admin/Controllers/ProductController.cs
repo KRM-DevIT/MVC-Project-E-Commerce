@@ -153,7 +153,9 @@ namespace MiniECommerce.Areas.Admin.Controllers
             var product = _productService.GetProductById(id);
             if (product == null)
                 return RedirectToAction("NotFoundPage", "Error", new { area = "" });
-
+            
+            
+            string? oldImagePath = product.ImageUrl;
             // Handle image — only replace if a new file was uploaded
             if (model.ImageFile != null)
             {
@@ -166,9 +168,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
                     return View(model);
                 }
 
-                // Delete old image from disk before replacing
-                _productService.DeleteImage(product.ImageUrl);
-                product.ImageUrl = filePath;
+                product.ImageUrl = filePath; // update the ImagePath
             }
 
             product.ProductName = model.ProductName;
@@ -181,13 +181,19 @@ namespace MiniECommerce.Areas.Admin.Controllers
             var result = _productService.UpdateProduct(product);
             if (result)
             {
+                if(model.ImageFile !=null) 
+                    _productService.DeleteImage(product.ImageUrl); // will delete the old image from server
+
                 TempData["SuccessMessage"] = "Product updated successfully.";
                 return RedirectToAction(nameof(Details), new { id = product.ProductId });
             }
 
+            if (model.ImageFile != null) // if db update failed will delete the new image from server
+                _productService.DeleteImage(product.ImageUrl);
+
             ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
             model.categories = _categoryService.CategoryDropDownList();
-            model.ExistingImageUrl = product.ImageUrl;
+            model.ExistingImageUrl = oldImagePath; // if update didn't go fine we restore the last image (no delete done)
             return View(model);
         }
 

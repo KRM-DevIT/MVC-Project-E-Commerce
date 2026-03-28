@@ -1,4 +1,6 @@
-﻿namespace MiniECommerce.Services
+﻿using MiniECommerce.DTO;
+
+namespace MiniECommerce.Services
 {
     public class OrderService : IOrderService
     {
@@ -9,44 +11,52 @@
             _repository = repository;
         }
 
+        // ================ User-Services=======================
         public bool CreateOrder(Order order)
         {
-            bool orderExists= _repository.CheckUniquness(order.OrderNumber);
-            if(orderExists) { return false;}
+            bool orderExists = _repository.CheckUniquness(order.OrderNumber);
+            if (orderExists) return false;
 
             _repository.Insert(order);
             _repository.Save();
             return true;
         }
 
-
         public List<Order> GetAllOrders()
         {
             return _repository.GetAll();
         }
 
-        public bool UpdateOrderStatus(int orderId, OrderStatus status)
-        {
-            var order = _repository.GetById(orderId);
-            if(order == null) { return false; }
-            order.Status = status;
-            _repository.Update(order);
-            _repository.Save();
-            return true;
-        }
         public Order? GetOrderDetails(int orderId)
         {
-            var order = _repository.GetById(orderId);
-            if (order == null) return null;
-            else
-            {
-                return order;
-            }
+            return _repository.GetById(orderId);
         }
 
         public List<Order> GetOrdersForUser(string userId)
         {
-           return _repository.GetOrdersForUser(userId);
+            return _repository.GetOrdersForUser(userId);
+        }
+
+        // =================== Admin Services======================
+
+        public List<OrderDto> GetAllOrdersWithDetails()
+        {
+            return _repository.GetAllOrdersWithDetails();
+        }
+        public OrderDto? GetOrderWithDetails(int orderId)
+        {
+            return _repository.GetByIdWithDetails(orderId);
+        }
+
+        public bool UpdateOrderStatus(int orderId, OrderStatus status)
+        {
+            var order = _repository.GetById(orderId);
+            if (order == null) return false;
+
+            order.Status = status;
+            _repository.Update(order);
+            _repository.Save();
+            return true;
         }
 
         public string GetUniqueOrderNumber()

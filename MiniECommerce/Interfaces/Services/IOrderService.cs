@@ -1,13 +1,20 @@
-﻿namespace MiniECommerce.Interfaces.Services
+﻿using MiniECommerce.DTO;
+
+namespace MiniECommerce.Interfaces.Services
 {
     public interface IOrderService
     {
+        // === User Functions
+        bool CreateOrder(Order order);
         Order? GetOrderDetails(int orderId);
         List<Order> GetOrdersForUser(string userId);
         List<Order> GetAllOrders();
-        bool UpdateOrderStatus(int orderId, OrderStatus status); 
-        bool CreateOrder(Order order);
+       
+        // === Admin Functions
 
+        bool UpdateOrderStatus(int orderId, OrderStatus status); 
+        OrderDto? GetOrderWithDetails(int orderId);
         string GetUniqueOrderNumber();
+        List<OrderDto> GetAllOrdersWithDetails();
     }
 }
