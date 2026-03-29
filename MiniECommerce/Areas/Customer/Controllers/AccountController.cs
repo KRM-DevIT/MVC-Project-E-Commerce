@@ -27,14 +27,12 @@ namespace MiniECommerce.Areas.Customer.Controllers
 
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(CustomerRegisterViewModel model)
         {
@@ -46,14 +44,21 @@ namespace MiniECommerce.Areas.Customer.Controllers
 
             var user = new ApplicationUser
             {
-                UserName = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 Email = model.Email,
-                EmailConfirmed = true
+                UserName = $"{model.FirstName}_{model.LastName}"
             };
 
 
             var result = await _userManager.CreateAsync(user, model.Password);
-
+            
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "Customer");
+                TempData["SuccessMessage"] = "Registration successful! Please log in.";
+                return RedirectToAction(nameof(Login)); 
+            }
 
             foreach (var error in result.Errors)
             {
@@ -68,13 +73,12 @@ namespace MiniECommerce.Areas.Customer.Controllers
         #region Login
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             // If already authenticated, no need to show login page
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(HomeController.Index), "Home" , new { area = "" });
             }
 
             // Store returnUrl in ViewBag so the form can post it back
@@ -84,7 +88,6 @@ namespace MiniECommerce.Areas.Customer.Controllers
 
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(CustomerLoginViewModel model, string? returnUrl = null)
         {
@@ -117,7 +120,7 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 {
                     return LocalRedirect(returnUrl);
                 }
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(HomeController.Index), "Home", new { area = "" });
             }
 
             if (result.IsNotAllowed)
@@ -133,19 +136,17 @@ namespace MiniECommerce.Areas.Customer.Controllers
 
             return View(model);
         }
-
-
         #endregion
 
+
+
         #region Logout
-
-
             [HttpPost]
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> Logout()
             {
                 await _signInManager.SignOutAsync();
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(HomeController.Index), "Home", new { area = "" });
             }
         #endregion
 

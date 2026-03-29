@@ -178,5 +178,15 @@ namespace MiniECommerce.Services
 
             return $"{categoryPart}-{namePart}-{suffix}";
         }
+
+        public List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize)
+        {
+            return _repository.GetProductsByCategoryWithPagination(categoryIds, pageNumber, pageSize);
+        }
+
+        public int GetProductsByCategoryCount(List<int> categoryIds)
+        {
+            return _repository.GetProductsByCategoryCount(categoryIds);
+        }
     }
 }

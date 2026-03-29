@@ -57,5 +57,22 @@ namespace MiniECommerce.Repositories
         {
             return _context.Products.Count();
         }
+
+        public int GetProductsByCategoryCount(List<int> categoryIds)
+        {
+            return _context.Products
+                            .Where(p => categoryIds.Contains(p.CategoryId))
+                            .Count();
+        }
+
+        public List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize)
+        {
+            return _context.Products
+                           .Where(p => categoryIds.Contains(p.CategoryId))
+                           .OrderBy(p => p.ProductId)
+                           .Skip((pageNumber - 1) * pageSize)
+                           .Take(pageSize)
+                           .ToList();
+        }
     }
 }

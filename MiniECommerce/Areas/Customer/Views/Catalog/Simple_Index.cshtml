@@ -1,0 +1,132 @@
+﻿@model CatalogViewModel
+
+<div class="container">
+    <!-- Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0">Product Catalog</h2>
+        <p class="text-muted small mb-0">@Model.TotalCount products available</p>
+    </div>
+
+
+        <div class="row">
+        <!--SideBar-->
+
+                <aside class="col-md-2">
+
+                        <h3 class="mb-3">Filters</h3>
+
+                        <form method="get" asp-action="ProductsByCategory" >
+
+                            <!-- Categories -->
+                            <div class="mb-4">
+                                <h5>Categories</h5>
+
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <div class="form-check">
+
+                                        <input class="form-check-input" type="checkbox"
+                                        name="Selectedcategories" value="@category.CategoryId"
+                                        @(Model.SelectedCategories.Any() ? 
+                                            (Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "") : "") /> @*!WoW!*@
+                                        <label class="form-check-label">
+                                            @category.CategoryName (@category.Products.Count)
+                                        </label>
+
+                                    </div>
+                                }
+
+                            </div>
+                            <input type="hidden" name="pageSize" value="@Model.PageSize"/>
+                            <button type="submit" class="btn btn-sm btn-dark">
+                                Apply Filters
+                            </button>
+
+                        </form>
+
+                        @* <div id="future-filters"></div> *@
+
+                </aside>
+                
+                <!--Listing Products-->
+                <div class="col-md-10">
+                   <div class="row">
+                       @foreach(var product in Model.Products)
+                       {
+                           <div class="col-md-4 mb-4">
+                               <div class="card h-100 shadow-sm">
+                                   @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                   {
+                                       <img src="@product.ImageUrl"
+                                            alt="@product.ProductName"
+                                            class="card-img-top"
+                                            style="height: 200px; object-fit: cover;" />
+                                   }
+                                   else
+                                   {
+                                       <div class="bg-light d-flex align-items-center justify-content-center"
+                                            style="height: 200px;">
+                                            <span class="text-muted">No Image Available</span>
+                                       </div>
+                                   }
+                                        <div class="card-body">
+                                            <h5 class="card-title">@product.ProductName</h5>
+                                            <p class="card-text">@product.Description</p>
+                                            <p class="card-text fw-bold text-success">
+                                                    $@product.CurrentPrice.ToString("N2")
+                                            </p>
+
+                                        </div>
+                               </div>
+                           </div>
+                       }
+                   </div>
+         </div>
+         </div>
+</div>
+<!-- Pagination -->
+<div class="d-flex flex-column align-items-center gap-3 mt-2">
+
+    <span class="text-muted small">
+        Page @Model.CurrentPage of @Model.TotalPages
+        &nbsp;|&nbsp; @Model.TotalCount total products
+    </span>
+
+    <nav>
+        <ul class="pagination mb-0">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.CurrentPage - 1)" asp-route-pageSize="@Model.PageSize">
+                    &laquo; Prev
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize">
+                        @i
+                    </a>
+
+                </li>
+            }
+
+
+            <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.CurrentPage + 1)" asp-route-pageSize="@Model.PageSize">
+                    Next &raquo;
+                </a>
+            </li>
+
+
+        </ul>
+    </nav>
+
+    <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+        <label class="mb-0 text-muted small">Go to page:</label>
+        <input type="number" name="pageNumber" min="1" max="@Model.TotalPages" value="@Model.CurrentPage" class="form-control form-control-sm" style="width:70px;" />
+        <button type="submit" class="btn btn-sm btn-outline-dark">Go</button>
+    </form>
+
+</div>

@@ -34,7 +34,7 @@
                         <a class="btn btn-outline-light" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <form method="post" asp-controller="Account" asp-action="Logout">
+                        <form asp-area="Admin" asp-controller="Account" asp-action="AdminLogout" method="post">
                             <button type="submit" class="btn btn-danger">Logout</button>
                         </form>
                     </li>

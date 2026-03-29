@@ -1,1 +1,74 @@
-﻿@* Use This To seperate the NavBar  *@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+<nav class="customer-nav">
+    <div class="nav-inner">
+
+        <!-- Logo -->
+        <a asp-area="" asp-controller="Home" asp-action="Index"
+           class="nav-logo">
+            ShopHub<span class="logo-dot"></span>
+        </a>
+
+        <!-- Mobile toggle -->
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+            &#9776;
+        </button>
+
+        <!-- Links wrapper -->
+        <div class="nav-links-wrapper" id="navLinksWrapper">
+
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <!-- Logged in -->
+                <ul class="nav-links">
+                    <li>
+                        <a asp-area="Customer" asp-controller="Catalog" asp-action="Index">
+                           🔍 Browse
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Customer" asp-controller="Cart" asp-action="Index"
+                           class="cart-link">
+                            &#128722; Cart
+                            @* Cart count badge — replace 0 with real session count later *@
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Customer" asp-controller="Orders" asp-action="Index">
+                            &#128203; My Orders
+                        </a>
+                    </li>
+                    <li>
+                        <form asp-area="Customer" asp-controller="Account" asp-action="Logout" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn-nav-logout">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            }
+            else
+            {
+                <!-- Logged out -->
+                <ul class="nav-links">
+                    <li>
+                        <a asp-area="Customer" asp-controller="Account"
+                           asp-action="Login" class="btn-nav-login">
+                            Login
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Customer" asp-controller="Account"
+                           asp-action="Register" class="btn-nav-register bg-info">
+                            Register
+                        </a>
+                    </li>
+                </ul>
+            }
+
+        </div>
+    </div>
+</nav>

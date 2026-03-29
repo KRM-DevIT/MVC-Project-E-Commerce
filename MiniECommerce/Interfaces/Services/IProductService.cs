@@ -37,5 +37,9 @@ namespace MiniECommerce.Interfaces.Services
         // Image handling
         Task<(bool Success, string? FilePath, string? Error)> SaveImageAsync(IFormFile file);
         void DeleteImage(string? filePath);
+
+        List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize);
+
+        int GetProductsByCategoryCount(List<int> categoryIds);
     }
 }

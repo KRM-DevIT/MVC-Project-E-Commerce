@@ -12,5 +12,9 @@
         List<Product> FilterProductsByIds(List<int> productIds);
 
         int GetProductsTotalCount();
+
+        int GetProductsByCategoryCount(List<int> categoryIds);
+
+        List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize);
     }
 }

@@ -22,8 +22,20 @@ namespace MiniECommerce.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Index(int pageNumber = 1, int pageSize = 10)
         {
-            var products = _productService.GetProductsWithPagination(pageNumber, pageSize);
             var TotalCount = _productService.GetProductCount();
+            int totalPages = (int)Math.Ceiling(TotalCount / (double)pageSize);
+            // server - side validation
+            if (pageNumber > totalPages)
+            {
+                pageNumber = totalPages;
+            }
+
+            if (pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+
+            var products = _productService.GetProductsWithPagination(pageNumber, pageSize);
 
             var ProductListVM = new ProductListViewModel
             {

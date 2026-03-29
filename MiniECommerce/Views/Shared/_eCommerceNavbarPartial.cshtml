@@ -2,41 +2,39 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm mb-3">
-    <div class="container">
-        <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">eCommerce</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-dark border-bottom shadow-sm mb-3 sticky-top">
 
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                </li>
-                @* <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </li> *@
-            </ul>
+    <div class="container-fluid">
+        
+        <a class="navbar-brand nav-logo fw-light text-light" asp-area="" asp-controller="Home" asp-action="Index">ShopHub</a><span class="logo-dot"></span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="mainNavbar"> @*Id must match collabse button id to DDL*@ 
+            
+
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-3">
+                
                 @if (!User.Identity!.IsAuthenticated) // if not authenticated yet
                 {
                     <li class="nav-item me-2">
-                        <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Account" asp-action="AdminLogin">
+                        <a class="btn btn-admin fw-bold rounded-pill btn-sm" asp-area="Admin" asp-controller="Account" asp-action="AdminLogin">
                             Admin Login
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="btn btn-outline-secondary" asp-area="Customer" asp-controller="Account" asp-action="Login">
+                        <a class="btn btn-customer fw-bold rounded-pill btn-sm" asp-area="Customer" asp-controller="Account" asp-action="Login">
                             Customer Login
                         </a>
                     </li>
                 }
+
                 else
                 {
-                    <li class="nav-item">
-                        <form asp-area="Admin" asp-controller="Account" asp-action="AdminLogout" method="post">
-                            <button type="submit" class="btn btn-danger">Logout</button>
-                        </form>
-                    </li>
+                   
                     @if (User.IsInRole("Admin")) 
                     {
                         <li class="nav-item">
@@ -44,13 +42,25 @@
                                 Admin Dashboard 🔰
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <form asp-area="Admin" asp-controller="Account" asp-action="AdminLogout" method="post">
+                                <button type="submit" class="btn btn-danger">Logout</button>
+                            </form>
+                        </li>
                     }
-                    else // not auth and not admin 
+                    else 
                     {
                         <li class="nav-item">
-                            <a class="btn btn-outline-secondary" asp-area="Customer" asp-controller="Account" asp-action="Login">
-                                Customer Dashboard 🌐
+                            <a class="btn btn-outline-secondary" style="font-style:italic;" asp-area="Customer" asp-controller="Catalog" asp-action="Index">
+                                SHOP NOW 🛒
                             </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <form asp-area="Customer" asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="btn btn-danger">Logout</button>
+                            </form>
                         </li>
                     }
                 }

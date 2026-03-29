@@ -1,0 +1,191 @@
+﻿.auth-page {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+}
+
+.auth-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(28,18,9,.1);
+    overflow: hidden;
+}
+
+.auth-left {
+    padding: 3rem 2.5rem;
+}
+
+.auth-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--espresso);
+    margin-bottom: .35rem;
+}
+
+.auth-subtitle {
+    color: var(--muted);
+    font-size: .9rem;
+    margin-bottom: 2rem;
+}
+
+.auth-right {
+    background: var(--espresso);
+    position: relative;
+    overflow: hidden;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+}
+
+    .auth-right::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(201,151,58,.25) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(201,151,58,.15) 0%, transparent 50%);
+    }
+
+.auth-right-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+}
+
+    .auth-right-content .big-quote {
+        font-family: var(--font-display);
+        font-size: 3.5rem;
+        color: var(--gold);
+        line-height: 1;
+        margin-bottom: 1rem;
+    }
+
+    .auth-right-content h3 {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: #fff;
+        margin-bottom: .75rem;
+    }
+
+    .auth-right-content p {
+        color: rgba(255,255,255,.6);
+        font-size: .88rem;
+        line-height: 1.7;
+        max-width: 260px;
+        margin: 0 auto;
+    }
+
+    .auth-right-content .decorative-dots {
+        display: flex;
+        gap: .4rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+        .auth-right-content .decorative-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.2);
+        }
+
+            .auth-right-content .decorative-dots span:nth-child(2) {
+                background: var(--gold);
+            }
+
+/* Form inputs */
+.form-floating .form-control {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    background: var(--cream);
+    transition: border-color .15s, box-shadow .15s;
+}
+
+    .form-floating .form-control:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(201,151,58,.12);
+        background: #fff;
+    }
+
+.form-floating label {
+    color: var(--muted);
+    font-size: .88rem;
+}
+
+.btn-auth {
+    background: var(--espresso);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: .75rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: .95rem;
+    width: 100%;
+    transition: background .15s, transform .12s;
+    letter-spacing: .2px;
+}
+
+    .btn-auth:hover {
+        background: var(--brown-mid);
+        transform: translateY(-1px);
+    }
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: var(--muted);
+    font-size: .78rem;
+    margin: 1.25rem 0;
+}
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+.remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+    .remember-row label {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        font-size: .85rem;
+        color: var(--muted);
+        cursor: pointer;
+    }
+
+.form-check-input:checked {
+    background-color: var(--gold);
+    border-color: var(--gold);
+}
+
+.auth-footer-link {
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+    margin-top: 1.25rem;
+}
+
+    .auth-footer-link a {
+        color: var(--gold);
+        font-weight: 600;
+    }
+
+        .auth-footer-link a:hover {
+            text-decoration: underline;
+        }

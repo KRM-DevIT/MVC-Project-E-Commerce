@@ -6,7 +6,14 @@ namespace MiniECommerce.Areas.Customer.ViewModels.AccountViewModels
 {
     public class CustomerRegisterViewModel
     {
-
+        [Required]
+        [StringLength(20, ErrorMessage = "First Name Can't Exceed 20 Characters")]
+        public string FirstName { get; set; } = null!;
+        [Required]
+        [StringLength(20, ErrorMessage = "Last Name Can't Exceed 20 Characters")]
+        public string LastName { get; set; } = null!;
+        
+        
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         [Display(Name = "Email Address")]

@@ -1,51 +1,124 @@
-﻿@model CustomerRegisterViewModel;
+﻿@model CustomerRegisterViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
 
-<h1>@ViewData["Title"]</h1>
+@section Styles {
+<link rel="stylesheet" href="~/css/CustomerRegisterStyle.css" asp-append-version="true" />
+}
 
-<div class="row">
-    <div class="col-md-4">
-        <!--
-            asp-controller and asp-action generate the form action URL
-            method="post" sends data in HTTP request body (not URL)
-        -->
-        <form asp-controller="Account" asp-action="Register" method="post">
-            <!-- Anti-forgery token automatically included by asp-action -->
+<div class="auth-page">
+    <div class="container">
+        <div class="auth-card">
+            <div class="row g-0">
 
-            <h2>Create a new account.</h2>
-            <hr />
+                <!-- Left: form -->
+                <div class="col-lg-6 auth-left">
 
-            <!-- asp-validation-summary displays ModelState errors -->
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="auth-title">Create account</div>
+                    <p class="auth-subtitle">
+                        Join thousands of happy shoppers today.
+                    </p>
 
-            <div class="form-floating mb-3">
-                <!-- asp-for binds input to model property (name, id, value) -->
-                <input asp-for="Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
-                <label asp-for="Email">Email</label>
-                <!-- asp-validation-for displays field-specific errors -->
-                <span asp-validation-for="Email" class="text-danger"></span>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger mb-3" role="alert">
+                            <div asp-validation-summary="ModelOnly"></div>
+                        </div>
+                    }
+
+                    <form asp-area="Customer" asp-controller="Account" asp-action="Register" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- First + Last name side by side -->
+                        <div class="name-row mb-3">
+                            <div class="form-floating">
+                                <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                                <label asp-for="FirstName">First name</label>
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="form-floating">
+                                <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                                <label asp-for="LastName">Last name</label>
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+                            <label asp-for="Email">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <input asp-for="Password" class="form-control" autocomplete="new-password" placeholder="Password" />
+                            <label asp-for="Password">Password</label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <p class="password-hint mb-3">
+                            Min. 8 characters with uppercase, number & special character.
+                        </p>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="Confirm Password" />
+                            <label asp-for="ConfirmPassword">Confirm password</label>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn-auth">Create Account</button>
+
+                        <div class="auth-footer-link">
+                            Already have an account?
+                            <a asp-area="Customer" asp-controller="Account" asp-action="Login">
+                                Sign in
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Right: perks panel -->
+                <div class="col-lg-6 auth-right d-none d-lg-flex">
+                    <div class="auth-right-content">
+                        <div class="auth-right-title">Why join ShopMini?</div>
+                        <ul class="perks-list">
+                            <li>
+                                <div class="perk-icon">&#127873;</div>
+                                <div class="perk-text">
+                                    <strong>Exclusive Deals</strong>
+                                    <span>Members get early access to sales and offers</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="perk-icon">&#128666;</div>
+                                <div class="perk-text">
+                                    <strong>Order Tracking</strong>
+                                    <span>Follow your orders from placement to delivery</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="perk-icon">&#128717;</div>
+                                <div class="perk-text">
+                                    <strong>Saved Addresses</strong>
+                                    <span>Checkout faster with saved shipping details</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="perk-icon">&#11088;</div>
+                                <div class="perk-text">
+                                    <strong>Curated Selection</strong>
+                                    <span>Quality products chosen with care</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="Password" class="form-control" autocomplete="new-password" placeholder="password" />
-                <label asp-for="Password">Password</label>
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="password" />
-                <label asp-for="ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <!-- Client-side validation scripts -->
     <partial name="_ValidationScriptsPartial" />
 }

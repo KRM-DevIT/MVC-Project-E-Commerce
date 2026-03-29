@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MiniECommerce.DTO;
 using MiniECommerce.Models;
 
 namespace MiniECommerce.Areas.Admin.Controllers
 {
+    [Area("Admin")]
+    [Authorize(Roles ="Admin")]
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
@@ -13,8 +17,10 @@ namespace MiniECommerce.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            var orders = _orderService.GetAllOrdersWithDetails(); 
-            return View(orders);
+            var orders = _orderService.GetAllOrdersWithDetails();
+            var orderList = new OrderList();
+            orderList.Orders = orders;
+            return View(orderList);
         }
 
         [HttpPost]

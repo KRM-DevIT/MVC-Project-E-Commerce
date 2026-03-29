@@ -154,7 +154,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> AdminLogout()
             {
-                await _signInManager.SignOutAsync();
+                 await _signInManager.SignOutAsync();
                  return RedirectToAction("Index", "Home", new { area = "" });
             }
 

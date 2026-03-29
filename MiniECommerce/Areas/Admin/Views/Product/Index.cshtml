@@ -129,36 +129,38 @@ else
 
         <nav>
             <ul class="pagination mb-0">
-                <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-pageNumber="@(Model.CurrentPage - 1)"
-                       asp-route-pageSize="@Model.PageSize">&laquo; Prev</a>
+                <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.CurrentPage - 1)" asp-route-pageSize="@Model.PageSize">
+                        &laquo; Prev
+                    </a>
                 </li>
+
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
                     <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-pageNumber="@i"
-                           asp-route-pageSize="@Model.PageSize">@i</a>
+                        
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@Model.PageSize">
+                            @i
+                        </a>
+
                     </li>
                 }
+
+
                 <li class="page-item @(!Model.HasNext ? "disabled" : "")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-pageNumber="@(Model.CurrentPage + 1)"
-                       asp-route-pageSize="@Model.PageSize">Next &raquo;</a>
+                    <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.CurrentPage + 1)" asp-route-pageSize="@Model.PageSize">
+                        Next &raquo;
+                    </a>
                 </li>
+
+
             </ul>
         </nav>
 
         <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
             <input type="hidden" name="pageSize" value="@Model.PageSize" />
             <label class="mb-0 text-muted small">Go to page:</label>
-            <input type="number" name="pageNumber"
-                   min="1" max="@Model.TotalPages" value="@Model.CurrentPage"
-                   class="form-control form-control-sm" style="width:70px;" />
+            <input type="number" name="pageNumber" min="1" max="@Model.TotalPages" value="@Model.CurrentPage" class="form-control form-control-sm" style="width:70px;" />
             <button type="submit" class="btn btn-sm btn-outline-dark">Go</button>
         </form>
 

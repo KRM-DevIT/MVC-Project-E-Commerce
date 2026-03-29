@@ -1,0 +1,42 @@
+﻿.hero {
+    height: 100vh;
+    width: 100%;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/shop.png');
+    background-image: url('/images/shop.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    padding-left: 80px;
+}
+
+.hero-content {
+    color: white;
+    max-width: 500px;
+}
+
+    .hero-content h1 {
+        font-size: 50px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .hero-content p {
+        font-size: 18px;
+        margin-bottom: 25px;
+    }
+
+.shop-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: black;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+    .shop-btn:hover {
+        background-color: #333;
+    }

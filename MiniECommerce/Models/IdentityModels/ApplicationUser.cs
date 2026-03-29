@@ -9,7 +9,7 @@ namespace MiniECommerce.Models.IdentityModels
         [StringLength(20, ErrorMessage = "First Name Can't Exceed 20 Characters")]
         public string FirstName { get; set; } = null!;
         [Required]
-        [StringLength(20, ErrorMessage = "First Name Can't Exceed 20 Characters")]
+        [StringLength(20, ErrorMessage = "Last Name Can't Exceed 20 Characters")]
         public string LastName { get; set; } = null!;
 
         public string FullName
