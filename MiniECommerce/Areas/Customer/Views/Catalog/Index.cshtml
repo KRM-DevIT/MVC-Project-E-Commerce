@@ -30,7 +30,30 @@
         </p>
 
     </div>
+
+    <form class="d-flex" asp-action="Search" onsubmit="return validateSearch();">
+
+        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+        @foreach (var categoryId in Model.SelectedCategories)
+        {
+            <input type="hidden" name="Selectedcategories" value="@categoryId" />
+        }
+
+        <div class="me-2" style="position: relative;">
+            <input id="searchInput" class="form-control" type="search" name="query" placeholder="Search" aria-label="Search">
+            <div id="searchError" class="invalid-feedback" style="display:none;">
+                Please enter a search term
+            </div>
+        </div>
+
+        <button class="btn btn-outline-success" type="submit">Search</button>
+
+    </form>
+
 </div>
+
+
 
 <div class="row g-4">
 
@@ -50,9 +73,9 @@
                         <input type="checkbox"
                                name="Selectedcategories"
                                value="@category.CategoryId"
-                               id="cat-@category.CategoryId"
-                               @(Model.SelectedCategories.Any() ? 
-                                    (Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "") : "") />
+                               id="cat-@category.CategoryId" @*for label association*@ 
+                               @(Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "") />
+
                         <label for="cat-@category.CategoryId">
                             @category.CategoryName
                             <span class="cat-count">@category.Products.Count</span>
@@ -157,10 +180,11 @@
 
                                     @if (SignInManager.IsSignedIn(User))
                                     {
-                                        <form asp-area="Customer" asp-controller="Cart" asp-action="Add" method="post" style="flex:2;">
+                                        <form style="flex:2;" id="cartForm-@product.ProductId">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="productId" value="@product.ProductId" />
-                                            <button type="button" class="btn-cart w-100" @(outOfStock ? "disabled" : "") onclick="increaseCounter()">
+                                            <button type="button" class="btn-cart w-100" id="cartItem-@product.ProductId" @(outOfStock ? "disabled" : "")
+                                                    onclick="increaseCounterAndAjax(@product.ProductId, @product.StockQuantity)">
                                                 @(outOfStock ? "Unavailable" : "🛒 Add to Cart")
                                             </button>
                                         </form>
@@ -251,11 +275,74 @@
 
 @section Scripts {
     <script>
-        var counter = 0;
-        function increaseCounter() {
-            var cartCountElem = document.getElementById("cartCount");
-            counter++;
-            cartCountElem.textContent = counter;
+            
+            var counter = 0;
+            const itemsList = [];
+
+             function increaseCounterAndAjax(productId, stockQuantity) 
+             {
+
+             let existingItem = itemsList.find(item => item.productId === productId);
+
+             if (!existingItem) 
+             {
+                 existingItem = { productId: productId, StockQuantity: stockQuantity, QuantityAdded: 1 };
+                 itemsList.push(existingItem);
+             } 
+             
+             else 
+             {
+                 if (existingItem.QuantityAdded < existingItem.StockQuantity) 
+                 {
+                     existingItem.QuantityAdded++;
+                 }
+             }
+
+              let btn = $("#cartItem-" + productId);
+              if(existingItem.QuantityAdded >= existingItem.StockQuantity) // nn case first time
+              {
+                 btn.prop('disabled', true);
+              }
+              
+             var counter = parseInt(localStorage.getItem('cartCounter') || '0');
+             counter++;
+             localStorage.setItem('cartCounter', counter);
+             $("#cartCount").text(counter);
+
+
+             $.ajax({
+                 url: '@Url.Action("Add", "Cart", new { area = "Customer" })',
+                 type: 'POST',
+                 data: {
+                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                     productId: productId
+                 },
+                 
+                 success: function (response) 
+                 {
+                     $("#cartCount").text(response.count);
+                     localStorage.setItem("cartCounter", response.count)
+                 },
+                 
+                 error: function(xhr, status, error) {
+                     console.error('Error adding product to cart', error);
+                 }
+             });
+         }
+
+          function validateSearch() {
+            var input = document.getElementById('searchInput');
+            var error = document.getElementById('searchError');
+
+            if (input.value.trim() === '') {
+                input.classList.add('is-invalid'); // Bootstrap class to show red border on input
+                error.style.display = 'block';     // error message will be shown
+                return false;
+            } else {
+                input.classList.remove('is-invalid');
+                error.style.display = 'none';
+                return true; 
+            }
         }
     </script>
 }

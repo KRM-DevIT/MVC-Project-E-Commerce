@@ -102,7 +102,7 @@ namespace MiniECommerce
             #endregion
             builder.Services.AddHttpContextAccessor(); // to be able to access the httpcontext in which we have session
 
-            builder.Services.AddSession();
+            builder.Services.AddSession(); // MiddleWare adds session service to the application, allowing you to store and retrieve user-specific data across multiple requests. 
 
             builder.Services.AddScoped<CartService>();
 

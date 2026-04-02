@@ -10,3 +10,4 @@ global using MiniECommerce.Areas.Customer.ViewModels.AccountViewModels;
 global using MiniECommerce.Areas.Admin.ViewModels;
 global using MiniECommerce.Areas.Customer.ViewModels;
 global using MiniECommerce.Controllers;
+global using MiniECommerce.Services;

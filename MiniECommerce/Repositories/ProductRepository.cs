@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace MiniECommerce.Repositories
 {
@@ -72,7 +73,57 @@ namespace MiniECommerce.Repositories
                            .OrderBy(p => p.ProductId)
                            .Skip((pageNumber - 1) * pageSize)
                            .Take(pageSize)
+                           .AsNoTracking()
                            .ToList();
+        }
+
+        public int GetSearchProductCount(List<int> selectedcategories, string query)
+        {
+            bool HasCategoryFilter = selectedcategories != null && selectedcategories.Count > 0;
+            decimal? priceQuery;
+
+            if (decimal.TryParse(query, out var parsed))
+            {
+                priceQuery = parsed;
+            }
+            else
+            {
+                priceQuery = null;
+            }
+
+            return _context.Products.Where(  p => (!HasCategoryFilter || selectedcategories!.Contains(p.CategoryId)) &&
+                                            (p.ProductName.Contains(query) ||
+                                             p.SKU!.Contains(query) ||
+                                            (priceQuery.HasValue && p.CurrentPrice >= priceQuery.Value && p.CurrentPrice < priceQuery.Value + 1))
+                                          )
+                                      .Count();
+        }
+
+        public List<Product> SearchProductsWithPagination(List<int> selectedcategories, string query, int pageNumber, int pageSize)
+        {
+            bool HasCategoryFilter = selectedcategories != null && selectedcategories.Count > 0;
+            decimal? priceQuery;
+
+            if (decimal.TryParse(query, out var parsed))
+            {
+                priceQuery = parsed;
+            }
+            else
+            {
+                priceQuery = null;
+            }
+
+            return _context.Products.Where(  p => (!HasCategoryFilter || selectedcategories!.Contains(p.CategoryId)) &&
+                                            (p.ProductName.Contains(query) ||
+                                             p.SKU!.Contains(query) ||
+                                             p.Description!.Contains(query) ||
+                                            (priceQuery.HasValue && p.CurrentPrice >= priceQuery.Value && p.CurrentPrice < priceQuery.Value + 1))
+                                          ) 
+                                   .OrderBy(p => p.ProductId)
+                                   .Skip((pageNumber - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .AsNoTracking()
+                                   .ToList();
         }
     }
 }

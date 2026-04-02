@@ -5,7 +5,7 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.4rem;
-    position: sticky;
+    position: sticky; /*<!-- Keeps the sidebar visible as you scroll -->*/
     top: calc(var(--navbar-h) + 1rem);
 }
 

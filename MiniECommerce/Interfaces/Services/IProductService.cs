@@ -41,5 +41,7 @@ namespace MiniECommerce.Interfaces.Services
         List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize);
 
         int GetProductsByCategoryCount(List<int> categoryIds);
+        int GetSearchProductCount(List<int> selectedcategories, string query);
+        List<Product> SearchProductsWithPagination(List<int> selectedcategories, string query, int pageNumber, int pageSize);
     }
 }

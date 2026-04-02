@@ -13,13 +13,16 @@ namespace MiniECommerce.Services
         public int Quantity { get; set; } 
         public decimal LineTotal { get; set; }  
         public StockStatus StockStatus { get; set; }
-        public string DeliveryDate { get; set; }
+        public string? ImageUrl { get; set; }
+        public string DeliveryDate { get; set; } = null!;
     }
     public class Cart
     {
         public Dictionary<int, CartItem> CartItems { get; set; } = new Dictionary<int, CartItem>();
 
     }
+
+
     public class CartService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -29,7 +32,6 @@ namespace MiniECommerce.Services
             _httpContextAccessor = httpContextAccessor;
             _productService = productService;
         }
-
         private Cart GetCart()
         {
             var session = _httpContextAccessor.HttpContext!.Session;
@@ -41,21 +43,18 @@ namespace MiniECommerce.Services
 
             return cart;
         }
-
         private void SaveCart(Cart cart)
         {
             var session = _httpContextAccessor.HttpContext!.Session;
 
             session.SetCartCookie("Cart", cart);
         }
-
         public List<CartItem> GetAllCartItems()
         {
             var cart = GetCart(); // if not found won't make a problem as we don't save
 
             return cart.CartItems.Values.ToList();
         }
-
         public List<int> GetAllCartitemsIds()
         {
             var cart = GetCart();
@@ -92,7 +91,8 @@ namespace MiniECommerce.Services
                     UnitPriceAtPurchase = product.CurrentPrice,
                     StockStatus = StockStatus.InStock,
                     LineTotal = product.CurrentPrice,
-                    DeliveryDate = DateTime.Now.AddDays(3).ToString("dd-MMM-yyyy")
+                    DeliveryDate = DateTime.Now.AddDays(3).ToString("dd-MMM-yyyy"),
+                    ImageUrl = product.ImageUrl
                 };
                 cart.CartItems[ProductId] = item;
             }
@@ -100,7 +100,6 @@ namespace MiniECommerce.Services
             SaveCart(cart);
             return AddToCartResult.Success;
         }
-
         public bool RemoveItemFromCart(int itemId) 
         {
             // get cart in which the item exist
@@ -112,7 +111,6 @@ namespace MiniECommerce.Services
            
             return removed; // false if key not found
         }
-
         public UpdateQuantityResult UpdateItemQuantity(int itemId , int qty)
         {
             var cart = GetCart();
@@ -129,11 +127,11 @@ namespace MiniECommerce.Services
             SaveCart(cart);
             return UpdateQuantityResult.Success;
         }
-
         public void RemoveCartCookie()
         {
             var session = _httpContextAccessor.HttpContext!.Session;
             session.Remove("Cart");
         }
+
     }
 }

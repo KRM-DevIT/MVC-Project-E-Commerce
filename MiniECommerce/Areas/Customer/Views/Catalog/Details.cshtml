@@ -1,0 +1,276 @@
+﻿@model Product
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = Model.ProductName;
+    bool outOfStock = Model.StockQuantity == 0;
+    bool lowStock = Model.StockQuantity is > 0 and <= 5;
+}
+
+@section Styles {
+    <style>
+        .product-image-wrap {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--cream);
+            aspect-ratio: 1 / 1;
+        }
+
+            .product-image-wrap img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform .4s ease;
+            }
+
+            .product-image-wrap:hover img {
+                transform: scale(1.03);
+            }
+
+        .price-tag {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--espresso);
+        }
+
+        .btn-cart-lg {
+            background: var(--gold);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .75rem 2rem;
+            font-size: .95rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            transition: background .15s, transform .12s;
+            width: 100%;
+        }
+
+            .btn-cart-lg:hover:not(:disabled) {
+                background: var(--gold-light);
+                transform: translateY(-1px);
+            }
+
+            .btn-cart-lg:disabled {
+                background: var(--border);
+                color: var(--muted);
+                cursor: not-allowed;
+            }
+
+        .btn-back {
+            color: var(--muted);
+            font-size: .85rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            transition: color .15s;
+        }
+
+            .btn-back:hover {
+                color: var(--gold);
+            }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            padding: .6rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .88rem;
+        }
+
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+
+        .detail-label {
+            width: 130px;
+            flex-shrink: 0;
+            font-weight: 600;
+            color: var(--muted);
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .detail-value {
+            color: var(--espresso);
+        }
+
+        .sku-code {
+            font-family: monospace;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-size: .82rem;
+            color: var(--brown-mid);
+        }
+    </style>
+}
+
+<!-- Back link -->
+<a asp-area="Customer" asp-controller="Catalog" asp-action="Index" class="btn-back mb-4 d-inline-flex">
+    &#8592; Back to Collection
+</a>
+
+<div class="row g-5 align-items-start">
+
+    <!-- ── Left: Image ── -->
+    <div class="col-lg-5">
+        <div class="product-image-wrap">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="@Model.ProductName" />
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                    🖼️ No image available
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── Right: Info ── -->
+    <div class="col-lg-7">
+
+        <!-- Category + Name -->
+        @if (Model.Category != null)
+        {
+            <span class="badge rounded-pill mb-2"
+                  style="background:rgba(201,151,58,.15);color:var(--brown-mid);
+                             font-size:.75rem;font-weight:600;">
+                @Model.Category.CategoryName
+            </span>
+        }
+
+        <h1 class="mb-1" style="font-family:var(--font-display);font-size:1.9rem;
+                                  font-weight:700;color:var(--espresso);">
+            @Model.ProductName
+        </h1>
+
+        <!-- Stock indicator -->
+        <div class="mb-3">
+            @if (outOfStock)
+            {
+                <span class="badge bg-danger-subtle text-danger">Out of Stock</span>
+            }
+            else if (lowStock)
+            {
+                <span class="badge bg-warning-subtle text-warning">
+                    Only @Model.StockQuantity left — order soon
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-success-subtle text-success">
+                    ✓ In Stock
+                </span>
+            }
+        </div>
+
+        <!-- Price -->
+        <div class="price-tag mb-3">$@Model.CurrentPrice.ToString("N2")</div>
+
+        <!-- Description -->
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="mb-4" style="color:var(--muted);line-height:1.75;font-size:.92rem;">
+                @Model.Description
+            </p>
+        }
+
+        <!-- Add to cart -->
+        <div class="mb-4">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <form asp-area="Customer" asp-controller="Cart"
+                      asp-action="Add" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.ProductId" />
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <label class="fw-semibold small text-muted">QTY</label>
+                        <input type="number" name="quantity"
+                               value="1" min="1" max="@Model.StockQuantity"
+                               class="form-control form-control-sm"
+                               style="width:75px;"
+                               @(outOfStock ? "disabled" : "") />
+                    </div>
+
+                    <button type="submit" class="btn-cart-lg" @(outOfStock ? "disabled" : "")>
+                        @(outOfStock ? "Currently Unavailable" : "🛒 Add to Cart")
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-area="Customer" asp-controller="Account" asp-action="Login"
+                   class="btn-cart-lg d-block text-center text-decoration-none"
+                   style="line-height:2.8;">
+                    Login to Purchase
+                </a>
+            }
+        </div>
+
+        <!-- Product details table -->
+        <div class="card border-0 bg-light rounded-3 p-3">
+            <div class="detail-row">
+                <span class="detail-label">SKU</span>
+                <span class="detail-value">
+                    @if (!string.IsNullOrEmpty(Model.SKU))
+                    {
+                        <span class="sku-code">@Model.SKU</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">—</span>
+                    }
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Category</span>
+                <span class="detail-value">@(Model.Category?.CategoryName ?? "—")</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Availability</span>
+                <span class="detail-value">
+                    @if (outOfStock)
+                    {
+                        <span class="text-danger fw-semibold">Out of Stock</span>
+                    }
+                    else
+                    {
+
+                        <span class="text-success fw-semibold">@Model.StockQuantity units available</span>
+                    }
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Added</span>
+                <span class="detail-value text-muted">
+                    @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Clamp quantity input to available stock
+        const qtyInput = document.querySelector('input[name="quantity"]');
+        if (qtyInput) {
+            qtyInput.addEventListener('change', function () {
+                const max = parseInt(this.max);
+                const min = parseInt(this.min);
+                if (this.value > max) this.value = max;
+                if (this.value < min) this.value = min;
+            });
+        }
+    </script>
+}

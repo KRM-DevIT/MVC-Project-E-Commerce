@@ -1,0 +1,451 @@
+﻿@model List<CartItem>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "Your Cart";
+    decimal orderTotal = Model.Sum(i => i.LineTotal);
+    decimal shipping = orderTotal > 0 ? 5.99m : 0m;
+    decimal grandTotal = orderTotal + shipping;
+}
+
+@section Styles {
+    <style>
+        /* Only what Bootstrap can't do */
+        .cart-img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            background: var(--cream);
+        }
+
+        .cart-img-placeholder {
+            width: 90px;
+            height: 90px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            background: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            background: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--espresso);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color .15s, background .15s;
+            line-height: 1;
+        }
+
+            .qty-btn:hover:not(:disabled) {
+                border-color: var(--gold);
+                background: rgba(201,151,58,.08);
+            }
+
+            .qty-btn:disabled {
+                opacity: .4;
+                cursor: not-allowed;
+            }
+
+        .qty-display {
+            min-width: 32px;
+            text-align: center;
+            font-weight: 600;
+            font-size: .9rem;
+            color: var(--espresso);
+        }
+
+        .btn-remove {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: .8rem;
+            cursor: pointer;
+            padding: 0;
+            font-family: var(--font-body);
+            transition: color .15s;
+        }
+
+            .btn-remove:hover {
+                color: #dc2626;
+            }
+
+        .summary-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            position: sticky;
+            top: calc(var(--navbar-h) + 1rem);
+        }
+
+        .summary-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--espresso);
+            margin-bottom: 1.25rem;
+            padding-bottom: .75rem;
+            border-bottom: 2px solid var(--gold);
+            display: inline-block;
+            width: 100%;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .88rem;
+            padding: .4rem 0;
+            color: var(--brown-mid);
+        }
+
+            .summary-row.total {
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: var(--espresso);
+                border-top: 1px solid var(--border);
+                margin-top: .5rem;
+                padding-top: .75rem;
+            }
+
+        .btn-checkout {
+            background: var(--espresso);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: .8rem;
+            font-size: .95rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            width: 100%;
+            margin-top: 1.25rem;
+            transition: background .15s, transform .12s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+            .btn-checkout:hover {
+                background: var(--brown-mid);
+                color: #fff;
+                transform: translateY(-1px);
+            }
+
+        .delivery-badge {
+            font-size: .72rem;
+            color: var(--muted);
+            background: var(--cream);
+            border-radius: 4px;
+            padding: 1px 6px;
+            border: 1px solid var(--border);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+            .empty-cart .empty-icon {
+                font-size: 3.5rem;
+                margin-bottom: 1rem;
+            }
+
+        /* Fade out animation when item removed */
+        .cart-item-row {
+            transition: opacity .3s ease, max-height .3s ease;
+        }
+
+            .cart-item-row.removing {
+                opacity: 0;
+                pointer-events: none;
+            }
+    </style>
+}
+
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="section-title">Your Cart</h2>
+        <p class="text-muted small mb-0">
+            @Model.Count item@(Model.Count != 1 ? "s" : "") in your cart
+        </p>
+    </div>
+    <a asp-area="Customer" asp-controller="Catalog" asp-action="Index"
+       class="btn btn-outline-dark btn-sm">
+        ← Continue Shopping
+    </a>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-3">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="empty-cart">
+        <div class="empty-icon">🛒</div>
+        <h4 style="font-family:var(--font-display);">Your cart is empty</h4>
+        <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
+        <a asp-area="Customer" asp-controller="Catalog" asp-action="Index"
+           class="btn btn-dark px-4">Browse Products</a>
+    </div>
+}
+else
+{
+    <div class="row g-4 align-items-start">
+
+        <!-- ── Left: Cart Items ── -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+
+                    @foreach (var item in Model)
+                    {
+                        <div class="cart-item-row d-flex align-items-center gap-3 p-3 border-bottom"
+                             id="row-@item.itemId">
+
+                            <!-- Image -->
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="@item.ProductName"
+                                     class="cart-img" />
+                            }
+                            else
+                            {
+                                <div class="cart-img-placeholder">🖼️</div>
+                            }
+
+                            <!-- Info -->
+                            <div class="flex-grow-1 min-width-0">
+
+                                <div class="fw-semibold text-truncate"
+                                     style="font-family:var(--font-display);color:var(--espresso);">
+                                    @item.ProductName
+                                </div>
+
+                                <div class="text-muted small mb-2">
+                                    $@item.UnitPriceAtPurchase.ToString("N2") each
+                                    &nbsp;·&nbsp;
+                                    <span class="delivery-badge">
+                                        🚚 Est. @item.DeliveryDate
+                                    </span>
+                                </div>
+
+                                <!-- Qty controls -->
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
+                                    <div class="qty-control">
+                                        <button class="qty-btn"
+                                                onclick="changeQty(@item.itemId, -1)"
+                                                id="btn-minus-@item.itemId"
+                                                @(item.Quantity <= 1 ? "disabled" : "")>
+                                            −
+                                        </button>
+                                        <span class="qty-display" id="qty-@item.itemId">
+                                            @item.Quantity
+                                        </span>
+                                        <button class="qty-btn"
+                                                onclick="changeQty(@item.itemId, 1)"
+                                                id="btn-plus-@item.itemId">
+                                            +
+                                        </button>
+                                    </div>
+
+                                    <button class="btn-remove"
+                                            onclick="removeItem(@item.itemId)">
+                                        🗑️ Remove
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Line total -->
+                            <div class="text-end flex-shrink-0">
+                                <div class="fw-bold" id="line-@item.itemId"
+                                     style="font-family:var(--font-display);
+                                                    font-size:1.05rem;color:var(--espresso);">
+                                    $@item.LineTotal.ToString("N2")
+                                </div>
+                            </div>
+
+                            <!-- Hidden stock limit for JS -->
+                            <span id="stock-@item.itemId"
+                                  data-stock="@item.Quantity"
+                                  data-price="@item.UnitPriceAtPurchase"
+                                  class="d-none"></span>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Right: Summary ── -->
+        <div class="col-lg-4">
+            <div class="summary-card">
+                <div class="summary-title">Order Summary</div>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="summarySubtotal">$@orderTotal.ToString("N2")</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>$@shipping.ToString("N2")</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span id="summaryTotal">$@grandTotal.ToString("N2")</span>
+                </div>
+
+                <a asp-area="Customer" asp-controller="Checkout"
+                   asp-action="Index" class="btn-checkout">
+                    Proceed to Checkout →
+                </a>
+
+                <p class="text-muted text-center mt-3 mb-0" style="font-size:.75rem;">
+                    🔒 Secure checkout
+                </p>
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const shipping  = @shipping.ToString("F2");
+        const antiForgeryToken = document.querySelector('meta[name="RequestVerificationToken"]')?.content
+            || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1]
+            || '';
+
+        // Read token from any hidden antiforgery input on the page
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        }
+
+        function changeQty(itemId, delta) {
+            const qtyEl    = document.getElementById('qty-' + itemId);
+            const stockEl  = document.getElementById('stock-' + itemId);
+            const lineEl   = document.getElementById('line-' + itemId);
+            const minusBtn = document.getElementById('btn-minus-' + itemId);
+            const plusBtn  = document.getElementById('btn-plus-' + itemId);
+
+            const currentQty = parseInt(qtyEl.textContent);
+            const maxStock   = parseInt(stockEl.dataset.stock);
+            const unitPrice  = parseFloat(stockEl.dataset.price);
+
+            const newQty = currentQty + delta;
+
+            // Guard bounds
+            if (newQty < 1 || newQty > maxStock) return;
+
+            // Optimistic UI update
+            qtyEl.textContent     = newQty;
+            lineEl.textContent    = '$' + (newQty * unitPrice).toFixed(2);
+            minusBtn.disabled     = newQty <= 1;
+            plusBtn.disabled      = newQty >= maxStock;
+
+            updateSummary();
+
+            // AJAX to server
+            $.ajax({
+                url:  '@Url.Action("UpdateQuantity", "Cart", new { area = "Customer" })',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: getToken(),
+                    itemId: itemId,
+                    qty: newQty
+                },
+                error: function () {
+                    // Revert on failure
+                    qtyEl.textContent  = currentQty;
+                    lineEl.textContent = '$' + (currentQty * unitPrice).toFixed(2);
+                    minusBtn.disabled  = currentQty <= 1;
+                    plusBtn.disabled   = currentQty >= maxStock;
+                    updateSummary();
+                    alert('Could not update quantity. Please try again.');
+                }
+            });
+        }
+
+        function removeItem(itemId) {
+            const row = document.getElementById('row-' + itemId);
+
+            // Fade out
+            row.classList.add('removing');
+
+            $.ajax({
+                url:  '@Url.Action("Remove", "Cart", new { area = "Customer" })',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: getToken(),
+                    itemId: itemId
+                },
+                success: function (response) {
+                    row.remove();
+                    updateSummary();
+
+                    // Update cart badge in navbar
+                    const badge = document.getElementById('cartCount');
+                    if (badge && response.count !== undefined)
+                        badge.textContent = response.count;
+
+                    // Show empty state if no items left
+                    if (document.querySelectorAll('.cart-item-row').length === 0) {
+                        location.reload();
+                    }
+                },
+                error: function () {
+                    row.classList.remove('removing');
+                    alert('Could not remove item. Please try again.');
+                }
+            });
+        }
+
+        function updateSummary() {
+            let subtotal = 0;
+
+            document.querySelectorAll('.cart-item-row').forEach(row => {
+                const id      = row.id.replace('row-', '');
+                const lineEl  = document.getElementById('line-' + id);
+                if (lineEl) {
+                    subtotal += parseFloat(lineEl.textContent.replace('$', ''));
+                }
+            });
+
+            const total = subtotal + (subtotal > 0 ? shipping : 0);
+
+            document.getElementById('summarySubtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('summaryTotal').textContent    = '$' + total.toFixed(2);
+        }
+    </script>
+
+    @* Antiforgery token available to JS *@
+    @Html.AntiForgeryToken()
+}

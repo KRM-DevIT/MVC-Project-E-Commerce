@@ -16,5 +16,7 @@
         int GetProductsByCategoryCount(List<int> categoryIds);
 
         List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize);
+        int GetSearchProductCount(List<int> selectedcategories, string query);
+        List<Product> SearchProductsWithPagination(List<int> selectedcategories, string query, int pageNumber, int pageSize);
     }
 }

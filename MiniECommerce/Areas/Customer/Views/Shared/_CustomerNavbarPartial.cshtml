@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
+@inject MiniECommerce.Services.CartService CartService
 
 <nav class="customer-nav">
     <div class="nav-inner">
@@ -31,8 +32,7 @@
                         <a asp-area="Customer" asp-controller="Cart" asp-action="Index"
                            class="cart-link">
                             &#128722; Cart
-                            @* Cart count badge — replace 0 with real session count later *@
-                            <span class="cart-badge" id="cartCount">0</span>
+                            <span class="cart-badge" id="cartCount">@CartService.GetAllCartItems().Count</span>
                         </a>
                     </li>
                     <li>

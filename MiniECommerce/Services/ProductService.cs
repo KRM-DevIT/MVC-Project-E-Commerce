@@ -188,5 +188,15 @@ namespace MiniECommerce.Services
         {
             return _repository.GetProductsByCategoryCount(categoryIds);
         }
+
+        public int GetSearchProductCount(List<int> selectedcategories, string query)
+        {
+            return _repository.GetSearchProductCount(selectedcategories, query);
+        }
+
+        public List<Product> SearchProductsWithPagination(List<int> selectedcategories, string query, int pageNumber, int pageSize)
+        {
+            return _repository.SearchProductsWithPagination(selectedcategories, query, pageNumber, pageSize);
+        }
     }
 }
