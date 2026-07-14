@@ -56,7 +56,7 @@ namespace MiniECommerce
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 // Cookie security settings
-                options.Cookie.HttpOnly = true;
+                options.Cookie.HttpOnly = true; // prevent js from accessing it via document.cookie to mitigate xss attack
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);
@@ -87,19 +87,20 @@ namespace MiniECommerce
             //---------------------- Add-Dependency_Injection HERE ----------------------------
 
             #region InterfacesInjection
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+                builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+                builder.Services.AddScoped<IProductRepository, ProductRepository>();
+                builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+                builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+                builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+                builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
-            builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<IOrderService, OrderService>();
-            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IAddressService, AddressService>();
+                builder.Services.AddScoped<IProductService, ProductService>();
+                builder.Services.AddScoped<IOrderService, OrderService>();
+                builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+                builder.Services.AddScoped<ICategoryService, CategoryService>();
+                builder.Services.AddScoped<IAddressService, AddressService>();
             #endregion
+
             builder.Services.AddHttpContextAccessor(); // to be able to access the httpcontext in which we have session
 
             builder.Services.AddSession(); // MiddleWare adds session service to the application, allowing you to store and retrieve user-specific data across multiple requests. 

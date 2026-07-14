@@ -2,61 +2,55 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<nav class="navbar navbar-expand-lg navbar-light bg-dark border-bottom shadow-sm mb-3 sticky-top">
-
+<nav class="navbar bg-dark navbar-expand-lg sticky-top">
     <div class="container-fluid">
-        
-        <a class="navbar-brand nav-logo fw-light text-light" asp-area="" asp-controller="Home" asp-action="Index">ShopHub</a><span class="logo-dot"></span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+
+        <a class="navbar-brand nav-logo fw-light text-light" asp-controller="Home" asp-action="Index">
+            ShopHub <span class="logo-dot"></span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <i class="fa-solid fa-burger" style="color: rgb(245, 212, 59);"></i>
         </button>
-        
-        <div class="collapse navbar-collapse" id="mainNavbar"> @*Id must match collabse button id to DDL*@ 
-            
 
+        <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+            <ul class="navbar-nav gap-2 align-items-md-end mt-3 mt-lg-0">
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-3">
-                
-                @if (!User.Identity!.IsAuthenticated) // if not authenticated yet
+                @if (!User.Identity!.IsAuthenticated)
                 {
-                    <li class="nav-item me-2">
+                    <li class="nav-item">
                         <a class="btn btn-admin fw-bold rounded-pill btn-sm" asp-area="Admin" asp-controller="Account" asp-action="AdminLogin">
                             Admin Login
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a class="btn btn-customer fw-bold rounded-pill btn-sm" asp-area="Customer" asp-controller="Account" asp-action="Login">
                             Customer Login
                         </a>
                     </li>
                 }
-
                 else
                 {
-                   
-                    @if (User.IsInRole("Admin")) 
+                    @if (User.IsInRole("Admin"))
                     {
                         <li class="nav-item">
                             <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                                 Admin Dashboard 🔰
                             </a>
                         </li>
-
                         <li class="nav-item">
                             <form asp-area="Admin" asp-controller="Account" asp-action="AdminLogout" method="post">
                                 <button type="submit" class="btn btn-danger">Logout</button>
                             </form>
                         </li>
                     }
-                    else 
+                    else
                     {
                         <li class="nav-item">
                             <a class="btn btn-outline-secondary" style="font-style:italic;" asp-area="Customer" asp-controller="Catalog" asp-action="Index">
                                 SHOP NOW 🛒
                             </a>
                         </li>
-
                         <li class="nav-item">
                             <form asp-area="Customer" asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="btn btn-danger">Logout</button>
@@ -64,7 +58,9 @@
                         </li>
                     }
                 }
+
             </ul>
         </div>
+
     </div>
 </nav>

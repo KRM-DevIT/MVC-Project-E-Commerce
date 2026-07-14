@@ -21,9 +21,10 @@ namespace MiniECommerce.Data
 
 
         /// <summary>
-        /// Constructor receives DbContextOptions which contains configuration like 
-        /// which database provider to use (InMemory, SQL Server, etc.)
-        /// This is injected by the DI container configured in Program.cs
+            /// Constructor receives DbContextOptions which contains configuration such as
+            /// which database provider to use (InMemory, SQL Server, etc.)
+            /// This is injected by the DI container configured in Program.cs
+	        /// This Also remove the need of the OnConfiguring method.
         /// </summary>
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -33,12 +34,12 @@ namespace MiniECommerce.Data
 
 
         /// <summary>
-        /// OnModelCreating is where you configure the database schema.
-        /// We call base.OnModelCreating(builder) to ensure Identity's default 
-        /// configurations are applied (indexes, relationships, constraints).
-        /// 
-        /// You can add custom configurations here if you extend IdentityUser
-        /// or need to modify default behaviors.
+            /// OnModelCreating is where you configure the database schema.
+            /// We call base.OnModelCreating(builder) to ensure Identity's default 
+            /// configurations are applied (indexes, relationships, constraints).
+  
+            /// You can add custom configurations here if you extend IdentityUser
+            /// or need to modify default behaviors.
         /// </summary>
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -79,9 +80,9 @@ namespace MiniECommerce.Data
             });
             builder.Entity<OrderItem>(item =>
             {
-               item.HasOne(i=>i.Order)
+                item.HasOne(i=>i.Order)
                    .WithMany(i=>i.OrderItems)
-                   .HasForeignKey(i => i.OrderItemId)
+                   .HasForeignKey(i => i.OrderId)
                    .OnDelete(DeleteBehavior.Restrict);
 
                 item.HasOne(i => i.Product)
@@ -89,6 +90,7 @@ namespace MiniECommerce.Data
                     .HasForeignKey(i => i.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
             builder.Entity<Address>(address => 
             {
                 address.HasOne(addr => addr.User)

@@ -8,11 +8,11 @@ namespace MiniECommerce.Extensions
         {
             public static void SetCartCookie(this ISession session, string key, Cart value) // Saving 
             {
-                session.SetString(key, JsonSerializer.Serialize(value)); // covert object of type cart to jsonString
+                session.SetString(key, JsonSerializer.Serialize(value)); // convert object of type cart to jsonString
             }
 
-            public static Cart? GetCartCookie(this ISession session, string key) // Reading
-            {
+            public static Cart? GetCartCookie(this ISession session, string key) // Reading from session
+        {
                 var value = session.GetString(key);
                 if(value != null)
                 {

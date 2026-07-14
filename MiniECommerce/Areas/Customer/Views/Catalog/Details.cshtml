@@ -188,6 +188,7 @@
             @if (SignInManager.IsSignedIn(User))
             {
                 <form asp-area="Customer" asp-controller="Cart"
+                    @* Send the quantity as a route value *@
                       asp-action="Add" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="productId" value="@Model.ProductId" />
@@ -195,6 +196,7 @@
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <label class="fw-semibold small text-muted">QTY</label>
                         <input type="number" name="quantity"
+                               
                                value="1" min="1" max="@Model.StockQuantity"
                                class="form-control form-control-sm"
                                style="width:75px;"

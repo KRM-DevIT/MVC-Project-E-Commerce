@@ -20,11 +20,13 @@ namespace MiniECommerce.Areas.Customer.Controllers
             return View(CartItems);
         }
 
-        public IActionResult Add(int productId)
+        // why the function add shows json result while the others don't ?
+        // Edit it to show the same behavior as the others
+        public IActionResult Add(int productId )
         {
             _cartService.AddToCart(productId);
             var count = _cartService.GetAllCartItems().Count;
-            return Json(new { success = true, count });
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

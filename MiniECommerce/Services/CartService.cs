@@ -116,10 +116,14 @@ namespace MiniECommerce.Services
             var cart = GetCart();
             var ProductDB = _productService.GetProductById(itemId);
             if (ProductDB == null) return UpdateQuantityResult.ProductNotFound;            
-                if (qty < 0 || qty > ProductDB.StockQuantity)
-                {
-                    return UpdateQuantityResult.UnAvailableQuantity;
-                }
+            
+            if (qty < 0 || qty > ProductDB.StockQuantity)
+            
+            {
+            
+                return UpdateQuantityResult.UnAvailableQuantity;
+            
+            }
 
             var itemTobeUpdated = cart.CartItems[itemId];
             itemTobeUpdated.Quantity = qty;
