@@ -1,0 +1,73 @@
+﻿/* ===========================
+   Navbar
+=========================== */
+:root {
+    --gold: #c9973a;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+.nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.logo-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: inline-block;
+    margin-bottom: 2px;
+}
+
+/* Admin Button */
+
+.btn-admin,
+.btn-customer {
+    font-family: 'Playfair Display', serif;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    transition: .3s;
+    box-shadow: 0 4px 10px rgba(0,0,0,.1);
+}
+
+.btn-admin {
+    background: linear-gradient(45deg,#6c757d,#495057);
+    color: #fff;
+    border: none;
+}
+
+    .btn-admin:hover {
+        background: linear-gradient(45deg,#495057,#343a40);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,.2);
+    }
+
+.btn-customer {
+    background: linear-gradient(45deg,#ffc107,#fd7e14);
+    color: #212529;
+    border: none;
+}
+
+    .btn-customer:hover {
+        background: linear-gradient(45deg,#fd7e14,#e8590c);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,.2);
+    }
+
+/* Mobile */
+
+.navbar-toggler {
+    border: 1px solid rgba(255,255,255,.2);
+}
+
+    .navbar-toggler:focus {
+        box-shadow: none;
+    }
+
+    .navbar-toggler i {
+        font-size: 1.2rem;
+    }
