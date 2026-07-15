@@ -185,22 +185,23 @@
 
         <!-- Add to cart -->
         <div class="mb-4">
+            
             @if (SignInManager.IsSignedIn(User))
             {
-                <form asp-area="Customer" asp-controller="Cart"
+                <form asp-area="Customer" asp-controller="Cart" asp-action="Add" method="post">
                     @* Send the quantity as a route value *@
-                      asp-action="Add" method="post">
+                     
                     @Html.AntiForgeryToken()
+
                     <input type="hidden" name="productId" value="@Model.ProductId" />
 
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <label class="fw-semibold small text-muted">QTY</label>
-                        <input type="number" name="quantity"
-                               
-                               value="1" min="1" max="@Model.StockQuantity"
-                               class="form-control form-control-sm"
-                               style="width:75px;"
-                               @(outOfStock ? "disabled" : "") />
+                        <input type="number" name="quantity" value="1" 
+                                             min="1" max="@Model.StockQuantity"
+                                             class="form-control form-control-sm"
+                                             style="width:75px;"
+                                             @(outOfStock ? "disabled" : "") />
                     </div>
 
                     <button type="submit" class="btn-cart-lg" @(outOfStock ? "disabled" : "")>
@@ -208,6 +209,7 @@
                     </button>
                 </form>
             }
+
             else
             {
                 <a asp-area="Customer" asp-controller="Account" asp-action="Login"
@@ -216,6 +218,7 @@
                     Login to Purchase
                 </a>
             }
+
         </div>
 
         <!-- Product details table -->
@@ -233,10 +236,12 @@
                     }
                 </span>
             </div>
+            
             <div class="detail-row">
                 <span class="detail-label">Category</span>
                 <span class="detail-value">@(Model.Category?.CategoryName ?? "—")</span>
             </div>
+            
             <div class="detail-row">
                 <span class="detail-label">Availability</span>
                 <span class="detail-value">
@@ -251,6 +256,7 @@
                     }
                 </span>
             </div>
+
             <div class="detail-row">
                 <span class="detail-label">Added</span>
                 <span class="detail-value text-muted">

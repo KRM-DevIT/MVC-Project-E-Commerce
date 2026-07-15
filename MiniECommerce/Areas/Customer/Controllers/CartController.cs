@@ -22,6 +22,8 @@ namespace MiniECommerce.Areas.Customer.Controllers
 
         // why the function add shows json result while the others don't ?
         // Edit it to show the same behavior as the others
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Add(int productId )
         {
             _cartService.AddToCart(productId);

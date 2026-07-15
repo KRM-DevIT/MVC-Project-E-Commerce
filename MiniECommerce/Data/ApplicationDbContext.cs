@@ -78,6 +78,7 @@ namespace MiniECommerce.Data
                      .IsUnique();
                     
             });
+
             builder.Entity<OrderItem>(item =>
             {
                 item.HasOne(i=>i.Order)

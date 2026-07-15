@@ -100,6 +100,7 @@ namespace MiniECommerce.Services
             SaveCart(cart);
             return AddToCartResult.Success;
         }
+        
         public bool RemoveItemFromCart(int itemId) 
         {
             // get cart in which the item exist
@@ -111,6 +112,7 @@ namespace MiniECommerce.Services
            
             return removed; // false if key not found
         }
+
         public UpdateQuantityResult UpdateItemQuantity(int itemId , int qty)
         {
             var cart = GetCart();

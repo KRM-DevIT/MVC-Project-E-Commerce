@@ -17,7 +17,7 @@ namespace MiniECommerce.Models
         // to be unique in on modelCreating
         public string OrderNumber { get; set; } = null!;
 
-        public OrderStatus Status { get; set; } = OrderStatus.Placed; // in EF-Core it will be stored as int we will edit this in modelcreating to store it as stirng
+        public OrderStatus Status { get; set; } = OrderStatus.Placed; // in EF-Core it will be stored as int we may edit this in modelcreating to store it as stirng using HasConversion<string>
 
         public DateTime OrderDate { get; set; }
 
@@ -27,7 +27,7 @@ namespace MiniECommerce.Models
         public decimal TotalAmount { get; set; } // Sum of LineTotal of each OrderItem (LineTotal = UnitPriceAtPurshace * Quantitty)
 
         // Nav Properties
-        public ICollection<OrderItem> OrderItems = new List<OrderItem>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
         
         [ForeignKey(nameof(Address))]
         public int ShippingAddressId { get; set; }
