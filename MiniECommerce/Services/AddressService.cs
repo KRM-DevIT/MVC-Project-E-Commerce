@@ -1,5 +1,4 @@
 ﻿
-using Azure.Core;
 
 namespace MiniECommerce.Services
 {
@@ -10,33 +9,14 @@ namespace MiniECommerce.Services
         {
             _repository = repository;
         }
-        public bool AddNewAddress(Address address)
+        public void AddNewAddress(Address address)
         {
-            try
-            {
-                _repository.Insert(address);
-                _repository.Save();
-                return true;
-            }
-
-            catch
-            {
-                return false;
-            }
+                _repository.Insert(address);  
         }
 
-        public bool DeleteAddress(Address address)
+        public void DeleteAddress(Address address)
         {
-            try
-            {
-                _repository.Delete(address);
-                _repository.Save();
-                return true;
-            }
-
-            catch {
-                return false;
-            }
+                _repository.Delete(address);           
         }
 
         public Address? GetAddressById(string UserId, int id)
@@ -53,10 +33,24 @@ namespace MiniECommerce.Services
         {
             try
             {
-              var address = _repository.GetAddressById(UserId, AddressId);
-                if (address == null) return false;
-                address.IsDefault = true;
-                _repository.Update(address); 
+
+                var addresses = _repository.GetAllAddress(UserId);
+                var selectedaddress = addresses.FirstOrDefault(id => id.AddressId == AddressId);
+
+                if (selectedaddress == null) return false;
+
+                foreach (var address in addresses)
+                {
+                    if (address.IsDefault)
+                    {
+                        address.IsDefault = false;
+                        _repository.Update(address);
+                    }
+                }
+
+                // Default the address after cleaning the Defaults from current one 
+                selectedaddress.IsDefault = true;
+                _repository.Update(selectedaddress); 
                 return true;
           
             }
@@ -67,17 +61,22 @@ namespace MiniECommerce.Services
             }
         }
 
-        public bool UpdateAddress(Address address)
+        public void RemoveDefault(string UserId)
         {
-            try
+            var addresses = _repository.GetAllAddress(UserId);
+
+            foreach (var address in addresses)
             {
-                _repository.Update(address);
-                _repository.Save();
-
-                return true;
+                if (address.IsDefault)
+                {
+                    address.IsDefault = false;
+                    _repository.Update(address);
+                }
             }
-
-            catch { return false; }
+        }
+        public void UpdateAddress(Address address)
+        {
+                _repository.Update(address);
         }
     }
 }

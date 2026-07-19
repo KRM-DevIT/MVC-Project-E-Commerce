@@ -15,6 +15,8 @@ namespace MiniECommerce.Services
         public StockStatus StockStatus { get; set; }
         public string? ImageUrl { get; set; }
         public string DeliveryDate { get; set; } = null!;
+
+        public int AvailableStock { get; set; }
     }
     public class Cart
     {
@@ -66,41 +68,55 @@ namespace MiniECommerce.Services
             var found = cart.CartItems.TryGetValue(productId, out var item);
             return item; // item is null if not found
         }
-        public AddToCartResult AddToCart(int ProductId)
-        {
-            var cart = GetCart();
-            var product = _productService.GetProductById(ProductId);
-            if (product == null) return AddToCartResult.ProductNotFound;
 
-            if (cart.CartItems.ContainsKey(ProductId))
+        public AddToCartResult AddToCart(int productId, int quantity = 1)
+        {
+            if (quantity <= 0)
+                quantity = 1;
+            var cart = GetCart();
+            var product = _productService.GetProductById(productId);
+
+            if (product == null)
+                return AddToCartResult.ProductNotFound;
+
+            if (quantity <= 0)
+                quantity = 1;
+
+            if (cart.CartItems.ContainsKey(productId))
             {
-                var existing = cart.CartItems[ProductId];
-                if (existing.Quantity >= product.StockQuantity)
-                    return AddToCartResult.OutOfStock; 
-                existing.Quantity++;
+                var existing = cart.CartItems[productId];
+
+                if (existing.Quantity + quantity > product.StockQuantity)
+                    return AddToCartResult.OutOfStock;
+
+                existing.Quantity += quantity;
                 existing.LineTotal = existing.Quantity * existing.UnitPriceAtPurchase;
             }
             else
             {
-                if (product.StockQuantity <= 0) return AddToCartResult.OutOfStock;
+                if (product.StockQuantity <= 0 || quantity > product.StockQuantity)
+                    return AddToCartResult.OutOfStock;
+
                 var item = new CartItem
                 {
-                    itemId = ProductId,
-                    Quantity = 1,
+                    itemId = productId,
+                    Quantity = quantity,
                     ProductName = product.ProductName,
                     UnitPriceAtPurchase = product.CurrentPrice,
                     StockStatus = StockStatus.InStock,
-                    LineTotal = product.CurrentPrice,
+                    LineTotal = product.CurrentPrice * quantity,
                     DeliveryDate = DateTime.Now.AddDays(3).ToString("dd-MMM-yyyy"),
-                    ImageUrl = product.ImageUrl
+                    ImageUrl = product.ImageUrl,
+                    AvailableStock = product.StockQuantity
                 };
-                cart.CartItems[ProductId] = item;
+
+                cart.CartItems[productId] = item;
             }
 
             SaveCart(cart);
             return AddToCartResult.Success;
         }
-        
+
         public bool RemoveItemFromCart(int itemId) 
         {
             // get cart in which the item exist
@@ -119,17 +135,19 @@ namespace MiniECommerce.Services
             var ProductDB = _productService.GetProductById(itemId);
             if (ProductDB == null) return UpdateQuantityResult.ProductNotFound;            
             
-            if (qty < 0 || qty > ProductDB.StockQuantity)
+            if (qty <= 0 || qty > ProductDB.StockQuantity)
             
-            {
-            
+            {            
                 return UpdateQuantityResult.UnAvailableQuantity;
-            
             }
 
-            var itemTobeUpdated = cart.CartItems[itemId];
-            itemTobeUpdated.Quantity = qty;
-            itemTobeUpdated.LineTotal = qty * itemTobeUpdated.UnitPriceAtPurchase;
+            if (!cart.CartItems.TryGetValue(itemId, out var itemToBeUpdated))
+            {
+                return UpdateQuantityResult.ProductNotFound;
+            }
+           
+            itemToBeUpdated.Quantity = qty;
+            itemToBeUpdated.LineTotal = qty * itemToBeUpdated.UnitPriceAtPurchase;
             SaveCart(cart);
             return UpdateQuantityResult.Success;
         }

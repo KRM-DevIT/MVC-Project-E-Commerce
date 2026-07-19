@@ -9,18 +9,10 @@
             _repository = repository;
         }
 
-        public bool CreateOrderItem(OrderItem item)
+        public void CreateOrderItem(OrderItem item)
         {
-            try
-            {
-                _repository.Insert(item);
-                _repository.Save();
-                return true;
-            }
-            catch {
 
-                    return false;
-                  }
+                _repository.Insert(item);
 
         }
 

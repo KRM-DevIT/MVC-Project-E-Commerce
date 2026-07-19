@@ -6,7 +6,7 @@ namespace MiniECommerce.Interfaces.Repositories
     {
         bool CheckUniquness(string orderNumber);
 
-        List<Order> GetOrdersForUser(string userId);
+        List<OrderDto> GetOrdersForUser(string userId);
 
         List<OrderDto> GetAllOrdersWithDetails();
 

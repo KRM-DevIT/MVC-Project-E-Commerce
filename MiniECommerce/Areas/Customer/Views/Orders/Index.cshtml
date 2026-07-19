@@ -1,0 +1,121 @@
+﻿@model List<MiniECommerce.DTO.OrderDto>
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2>My Orders</h2>
+        <p class="text-muted">Track all your previous orders.</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <h5>No orders yet.</h5>
+            <p>You haven't placed any orders.</p>
+
+            <a asp-area="Customer"
+               asp-controller="Catalog"
+               asp-action="Index"
+               class="btn btn-dark">
+                Start Shopping
+            </a>
+        </div>
+    }
+    else
+    {
+        @foreach (var order in Model)
+        {
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header bg-white">
+
+                    <div class="row align-items-center">
+
+                        <div class="col-md-3">
+                            <strong>Order #</strong><br />
+                            @order.OrderNumber
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Date</strong><br />
+                            @order.OrderDate.ToString("dd MMM yyyy")
+                        </div>
+
+                        <div class="col-md-2">
+                            <strong>Total</strong><br />
+                            $@order.GrandTotal.ToString("N2")
+                        </div>
+
+                        <div class="col-md-2">
+
+                            <strong>Status</strong><br />
+
+                            @switch (order.Status)
+                            {
+                                case OrderStatus.Placed:
+                                    <span class="badge bg-primary">Placed</span>
+                                    break;
+                                
+                                case OrderStatus.OutForDelivery:
+                                    <span class="badge bg-warning text-dark">Processing</span>
+                                    break;
+
+                                case OrderStatus.delivered:
+                                    <span class="badge bg-success">Delivered</span>
+                                    break;
+
+                                case OrderStatus.Cancelled:
+                                    <span class="badge bg-danger">Cancelled</span>
+                                    break;
+
+                                default:
+                                    <span class="badge bg-secondary">@order.Status</span>
+                                    break;
+                            }
+
+                        </div>
+
+                        <div class="col-md-2 text-end">
+                            <a asp-action="Details"
+                               asp-route-id="@order.OrderId"
+                               class="btn btn-outline-dark btn-sm">
+                                View Details
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var item in order.Items)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+
+                            <div>
+                                <strong>@item.ProductName</strong>
+                                <br />
+                                <small class="text-muted">
+                                    Qty : @item.Quantity × $@item.UnitPrice.ToString("N2")
+                                </small>
+                            </div>
+
+                            <div>
+                                $@item.LineTotal.ToString("N2")
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>

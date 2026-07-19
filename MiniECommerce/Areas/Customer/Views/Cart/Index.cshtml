@@ -295,7 +295,7 @@ else
 
                             <!-- Hidden stock limit for JS -->
                             <span id="stock-@item.itemId"
-                                  data-stock="@item.Quantity"
+                                  data-stock="@item.AvailableStock"
                                   data-price="@item.UnitPriceAtPurchase"
                                   class="d-none"></span>
                         </div>
@@ -323,8 +323,7 @@ else
                     <span id="summaryTotal">$@grandTotal.ToString("N2")</span>
                 </div>
 
-                <a asp-area="Customer" asp-controller="Checkout"
-                   asp-action="Index" class="btn-checkout">
+                <a asp-area="Customer" asp-controller="Checkout" asp-action="Index" class="btn-checkout">
                     Proceed to Checkout →
                 </a>
 
@@ -339,7 +338,27 @@ else
 
 @section Scripts {
     <script>
+        
+       
+
+        document.addEventListener("DOMContentLoaded", function() 
+        {
+            document.querySelectorAll(".cart-item-row").forEach(row => {
+            
+            const itemId = row.id.replace("row-", "");
+            const plusBtn  = document.getElementById('btn-plus-' + itemId);
+            const qtyEl    = document.getElementById('qty-' + itemId);
+            const currentQty = parseInt(qtyEl.textContent);
+            const stockEl  = document.getElementById('stock-' + itemId);
+            const maxStock   = parseInt(stockEl.dataset.stock);
+
+            plusBtn.disabled      = currentQty >= maxStock;
+            });
+        });
+    </script>
+    <script>
         const shipping  = @shipping.ToString("F2");
+
         const antiForgeryToken = document.querySelector('meta[name="RequestVerificationToken"]')?.content
             || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1]
             || '';
@@ -374,24 +393,54 @@ else
             updateSummary();
 
             // AJAX to server
-            $.ajax({
-                url:  '@Url.Action("UpdateQuantity", "Cart", new { area = "Customer" })',
-                type: 'POST',
-                data: {
-                    __RequestVerificationToken: getToken(),
-                    itemId: itemId,
-                    qty: newQty
-                },
-                error: function () {
-                    // Revert on failure
-                    qtyEl.textContent  = currentQty;
-                    lineEl.textContent = '$' + (currentQty * unitPrice).toFixed(2);
-                    minusBtn.disabled  = currentQty <= 1;
-                    plusBtn.disabled   = currentQty >= maxStock;
-                    updateSummary();
-                    alert('Could not update quantity. Please try again.');
-                }
-            });
+                 $.ajax({
+                    url: '@Url.Action("UpdateQuantity", "Cart", new { area = "Customer" })',
+                    type: 'POST',
+                    data: {
+                        __RequestVerificationToken: getToken(),
+                        itemId: itemId,
+                        qty: newQty
+                    },
+
+                    success: function (response) {
+
+                        if (!response.success) {
+                            rollbackQuantity(
+                                qtyEl,
+                                lineEl,
+                                minusBtn,
+                                plusBtn,
+                                currentQty,
+                                unitPrice,
+                                maxStock
+                            );
+
+                                alert("Couldn't update quantity.");
+                            }
+                        },
+
+                    error: function () {
+
+                        rollbackQuantity(
+                            qtyEl,
+                            lineEl,
+                            minusBtn,
+                            plusBtn,
+                            currentQty,
+                            unitPrice,
+                            maxStock
+                        );
+
+                        alert("Server error.");
+                    }
+                });
+             }
+          function rollbackQuantity(qtyEl, lineEl, minusBtn, plusBtn, currentQty, unitPrice, maxStock) {
+            qtyEl.textContent = currentQty;
+            lineEl.textContent = '$' + (currentQty * unitPrice).toFixed(2);
+            minusBtn.disabled = currentQty <= 1;
+            plusBtn.disabled = currentQty >= maxStock;
+            updateSummary();
         }
 
         function removeItem(itemId) {
@@ -407,24 +456,30 @@ else
                     __RequestVerificationToken: getToken(),
                     itemId: itemId
                 },
-                success: function (response) {
-                    row.remove();
-                    updateSummary();
+                        success: function (response) {
 
-                    // Update cart badge in navbar
-                    const badge = document.getElementById('cartCount');
-                    if (badge && response.count !== undefined)
-                        badge.textContent = response.count;
+                        if (!response.success) 
+                        {
+                            row.classList.remove("removing");
+                            alert("Couldn't remove item.");
+                            return;
+                        }
 
-                    // Show empty state if no items left
-                    if (document.querySelectorAll('.cart-item-row').length === 0) {
-                        location.reload();
+                        row.remove();
+                        updateSummary();
+
+                        $("#cartCount").text(response.count);
+
+                        if (document.querySelectorAll(".cart-item-row").length === 0) 
+                        {
+                            location.reload();
+                        }
+                    },
+                
+                    error: function () {
+                         row.classList.remove('removing');
+                         alert('Could not remove item. Please try again.');
                     }
-                },
-                error: function () {
-                    row.classList.remove('removing');
-                    alert('Could not remove item. Please try again.');
-                }
             });
         }
 

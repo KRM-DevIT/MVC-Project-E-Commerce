@@ -1,0 +1,65 @@
+﻿@model addressVM
+
+@{
+    ViewData["Title"] = "Add Address";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between">
+        <h2 class="mb-4">Add New Address</h2>
+        <a asp-controller="Address"
+           asp-action="Index"
+           class="btn btn-success rounded-pill px-4 d-inline-flex align-items-center justify-content-center gap-2"
+           style="height:48px;">
+            <span>📍 My Saved Addresses</span>
+        </a>
+    </div>
+    <form asp-controller="Address" asp-action="Create" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Street" class="form-label"></label>
+            <input asp-for="Street" class="form-control" />
+            <span asp-validation-for="Street" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="City" class="form-label"></label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Country" class="form-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Zip" class="form-label"></label>
+            <input asp-for="Zip" class="form-control" />
+        </div>
+
+        <div class="form-check mb-4">
+            <input asp-for="IsDefault" class="form-check-input" />
+            <label asp-for="IsDefault" class="form-check-label"></label>
+        </div>
+
+        <button class="btn btn-dark">
+            Save
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

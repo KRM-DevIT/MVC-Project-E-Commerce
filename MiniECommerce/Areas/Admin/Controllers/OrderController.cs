@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniECommerce.DTO;
+using MiniECommerce.Interfaces.Repositories;
 using MiniECommerce.Models;
 
 namespace MiniECommerce.Areas.Admin.Controllers
@@ -10,10 +11,11 @@ namespace MiniECommerce.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
-
-        public OrderController(IOrderService orderService)
+        private IUnitOfWork _unitOfWork;
+        public OrderController(IOrderService orderService, IUnitOfWork unitOfWork)
         {
             _orderService = orderService;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
@@ -27,15 +29,26 @@ namespace MiniECommerce.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult UpdateStatus(int OrderId, OrderStatus status)
         {
-            var result = _orderService.UpdateOrderStatus(OrderId, status);
+            bool result = _orderService.UpdateOrderStatus(OrderId, status);
 
             if (!result)
+            {
                 TempData["ErrorMessage"] = $"Could not update status for order #{OrderId}.";
-            else
-                TempData["SuccessMessage"] = $"Order status updated successfully.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                _unitOfWork.SaveChanges();
+
+                TempData["SuccessMessage"] = "Order status updated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = $"Could not update status for order #{OrderId}.";
+            }
 
             return RedirectToAction(nameof(Index));
-
         }
     }
 }

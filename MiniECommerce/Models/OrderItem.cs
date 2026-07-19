@@ -9,6 +9,7 @@ namespace MiniECommerce.Models
     {
         [Key]
         public int OrderItemId { get; set; }
+
         [Precision(10, 2)]
         public decimal UnitPriceAtPurchase { get; set; } // Price of each product at time of placing the order
 

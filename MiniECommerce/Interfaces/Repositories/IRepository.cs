@@ -7,6 +7,6 @@
         void Insert(T item);
         void Update(T item);    
         void Delete(T item);
-        void Save();
+        //void Save();
     }
 }

@@ -1,0 +1,181 @@
+﻿@model MiniECommerce.DTO.OrderDto
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Order Details</h2>
+            <p class="text-muted mb-0">
+                Order #@Model.OrderNumber
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            ← Back to My Orders
+        </a>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- Left Side -->
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Purchased Items
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+
+                            <div>
+
+                                <h6 class="mb-1">
+                                    @item.ProductName
+                                </h6>
+
+                                <small class="text-muted">
+                                    Quantity : @item.Quantity
+                                </small>
+
+                                <br />
+
+                                <small class="text-muted">
+                                    Unit Price : $@item.UnitPrice.ToString("N2")
+                                </small>
+
+                            </div>
+
+                            <div class="fw-bold">
+                                $@item.LineTotal.ToString("N2")
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Right Side -->
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        Order Summary
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <strong>Order Date</strong>
+                        <div class="text-muted">
+                            @Model.OrderDate.ToString("dd MMM yyyy - hh:mm tt")
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Status</strong>
+                        <div>
+
+                            @switch (Model.Status)
+                            {
+                                case OrderStatus.Placed:
+                                    <span class="badge bg-primary">Placed</span>
+                                    break;
+
+                                case OrderStatus.OutForDelivery:
+                                    <span class="badge bg-warning text-dark">Processing</span>
+                                    break;
+
+                                case OrderStatus.delivered:
+                                    <span class="badge bg-success">Delivered</span>
+                                    break;
+
+                                case OrderStatus.Cancelled:
+                                    <span class="badge bg-danger">Cancelled</span>
+                                    break;
+
+                                default:
+                                    <span class="badge bg-secondary">
+                                        @Model.Status
+                                    </span>
+                                    break;
+                            }
+
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+
+                        <strong>Shipping Address</strong>
+
+                        <div class="text-muted">
+                            @Model.ShippingAddress
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between mb-2">
+
+                        <span>Subtotal</span>
+
+                        <span>
+                            $@Model.TotalAmount.ToString("N2")
+                        </span>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+
+                        <span>Shipping</span>
+
+                        <span>
+                            $@Model.Shipping.ToString("N2")
+                        </span>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+
+                        <span>Total</span>
+
+                        <span>
+                            $@Model.GrandTotal.ToString("N2")
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

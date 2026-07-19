@@ -1,0 +1,220 @@
+﻿@using MiniECommerce.DTO
+@model OrderDto
+
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <div class="display-1 text-success">
+            ✔
+        </div>
+
+        <h2 class="fw-bold mt-3">
+            Thank You!
+        </h2>
+
+        <p class="text-muted">
+            Your order has been placed successfully.
+        </p>
+
+    </div>
+
+    <div class="fw-bold mt-3">
+        Estimated Delivery :- @Model.OrderDate
+    </div>
+
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+
+            <h4 class="mb-0">
+                Order Information
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <strong>Order Number</strong>
+
+                    <div class="text-muted">
+                        @Model.OrderNumber
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <strong>Order Date</strong>
+
+                    <div class="text-muted">
+                        @Model.OrderDate.ToString("dd MMM yyyy hh:mm tt")
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <strong>Customer</strong>
+
+                    <div class="text-muted">
+                        @Model.CustomerName
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <strong>Email</strong>
+
+                    <div class="text-muted">
+                        @Model.CustomerEmail
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <strong>Status</strong>
+
+                    <div>
+
+                        <span class="badge bg-success">
+                            @Model.Status
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <strong>Shipping Address</strong>
+
+                    <div class="text-muted">
+                        @Model.ShippingAddress
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+
+            <h4 class="mb-0">
+                Ordered Items
+            </h4>
+
+        </div>
+
+        <div class="card-body p-0">
+
+            <table class="table mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>Product</th>
+
+                        <th width="120">Qty</th>
+
+                        <th width="150">Unit Price</th>
+
+                        <th width="150">Total</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+
+                            <td>
+                                @item.ProductName
+                            </td>
+
+                            <td>
+                                @item.Quantity
+                            </td>
+
+                            <td>
+                                $@item.UnitPrice.ToString("N2")
+                            </td>
+
+                            <td class="fw-bold">
+                                $@item.LineTotal.ToString("N2")
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+                <tfoot>
+
+                    <tr>
+
+                        <td colspan="3" class="text-end fw-bold">
+                            Grand Total(SubTotal&Shipping)
+                        </td>
+
+                        <td class="fw-bold fs-5">
+                            $@Model.GrandTotal.ToString("N2")
+                        </td>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="text-center">
+
+        <a asp-area="Customer"
+           asp-controller="Orders"
+           asp-action="Index"
+           class="btn btn-outline-dark me-2">
+
+            View My Orders
+
+        </a>
+
+        <a asp-area="Customer"
+           asp-controller="Catalog"
+           asp-action="Index"
+           class="btn btn-dark">
+
+            Continue Shopping
+
+        </a>
+
+    </div>
+
+</div>

@@ -16,6 +16,8 @@
         public OrderStatus Status { get; set; }
         public string? ShippingAddress { get; set; }
 
+        public decimal Shipping { get; set; } = 5.99m;
+        public decimal GrandTotal => TotalAmount + Shipping;
         public List<OrderItemDto> Items { get; set; } = new();
     } 
        public class OrderItemDto

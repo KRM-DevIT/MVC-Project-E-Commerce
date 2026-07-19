@@ -1,0 +1,100 @@
+﻿@model List<Address>
+
+@{
+    ViewData["Title"] = "My Addresses";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Addresses</h2>
+
+        <a asp-action="Create" class="btn btn-dark">
+            + Add Address
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You don't have any addresses yet.
+        </div>
+    }
+
+    @foreach (var item in Model)
+    {
+        <div class="card shadow-sm mb-3">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <h5>
+                            @item.Street
+
+                            @if (item.IsDefault)
+                            {
+                                <span class="badge bg-success ms-2">
+                                    Default
+                                </span>
+                            }
+
+                        </h5>
+
+                        <div>@item.City</div>
+
+                        <div>@item.Country</div>
+
+                        <div>Zip : @item.Zip</div>
+
+                    </div>
+
+                    <div class="text-end">
+
+                        <a asp-action="Edit"
+                           asp-route-id="@item.AddressId"
+                           class="btn btn-outline-primary btn-sm mb-2">
+                            Edit
+                        </a>
+
+                        @if (!item.IsDefault)
+                        {
+                            <form asp-action="SetDefault"
+                                  asp-route-id="@item.AddressId"
+                                  method="post"
+                                  class="mb-2">
+
+                                @Html.AntiForgeryToken()
+
+                                <button class="btn btn-outline-success btn-sm w-100">
+                                    Make Default
+                                </button>
+
+                            </form>
+                        }
+
+                        <form asp-action="Delete"
+                              asp-route-id="@item.AddressId"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button class="btn btn-outline-danger btn-sm w-100"
+                                    onclick="return confirm('Delete this address?')">
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

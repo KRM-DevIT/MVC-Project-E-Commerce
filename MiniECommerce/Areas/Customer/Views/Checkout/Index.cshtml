@@ -1,0 +1,236 @@
+﻿@model CheckoutVM
+@{
+    ViewData["Title"] = "CheckOut";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" />
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <h2 class="section-title">
+            Checkout
+        </h2>
+
+        <p class="text-muted mb-0">
+            Complete Your Order before Placing It .
+        </p>
+    </div>
+
+    <form id="checkoutForm" asp-area="Customer" asp-controller="Checkout" asp-action="ProcessCheckout" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-5">
+            @*=========================================*@
+            @*Customer Information*@
+            @*=========================================*@
+
+            <div class="col-lg-8">
+                
+                @*Basic Information*@
+                <div class="card shadow-sm border-2 mb-4">
+
+                    <div class="card-body">
+                        <h5 class="mb-4">
+                            Customer Information
+                        </h5>
+                    </div>
+
+                    <div class="row mx-2 mb-4">
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                Full Name
+                            </label>
+
+                            <input class="form-control"
+                                   value="@Model.UserName"
+                                   readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                Email
+                            </label>
+
+                            <input class="form-control"
+                                   value="@Model.UserEmail"
+                                   readonly />
+                        </div>
+
+                    </div>
+
+                </div>
+
+                @*Shipping Addresses*@
+
+                <div class="card border-2 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex flex-row justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">
+                                Shipping Address
+                            </h5>
+                            <a asp-controller="Address" asp-action="Create" class="btn btn-outline-dark btn-sm">
+                                + Add Address
+                            </a>
+                        </div>
+
+                        @foreach(var address in Model.Addresses)
+                        {
+                            <div class="form-check border rounded p-3 mb-3">
+                                <input class="form-check-input" type="radio"
+                                       value="@address.AddressId"
+                                       asp-for="ShippingAddressId"
+                                        />
+
+
+                             <div class="d-flex flex-row justify-content-between align-items-center">
+                                        <label class="form-check-label ms-2">
+
+                                            <div class="text-muted small fw-bold">
+                                                @address.Street
+                                            </div>
+
+                                            <div class="text-muted small">
+                                                @address.City
+                                            </div>
+
+                                            <div class="text-muted small">
+                                                @address.Country
+                                            </div>
+                                        </label>
+
+                                        <label class="form-check-label">
+                                           Zip Code :- @address.Zip
+                                        </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+            @*=========================================*@
+            @*Order Sumeery*@
+            @*=========================================*@
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm border-2 border-warning">
+
+                    <div class="card-body">
+
+                        <h5 class="mb-4">
+                            Order Summary
+                        </h5>
+
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                <div class="d-flex align-items-center">
+
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl"
+                                             alt="@item.ProductName"
+                                             class="summary-img" />
+                                    }
+                                    else
+                                    {
+                                        <div class="summary-img-placeholder">
+                                            🖼️
+                                        </div>
+                                    }
+
+                                    <div class="ms-3">
+
+                                        <div class="fw-semibold text-truncate summary-product-name">
+                                            @item.ProductName
+                                        </div>
+
+                                        <small class="text-muted">
+                                            Qty : @item.Quantity
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="fw-semibold">
+                                    $@item.LineTotal.ToString("N2")
+                                </div>
+
+                            </div>
+                        }
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>Subtotal</span>
+
+                            <span>
+                                $@Model.CartTotal.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-2">
+
+                            <span>Shipping</span>
+
+                            <span>
+                                $@Model.Shipping.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+
+                            <span>Total</span>
+
+                            <span>
+                                $@Model.GrandTotal.ToString("N2")
+                            </span>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100 mt-4">
+
+                            <i class="fa-brands fa-first-order fa-rotate-90" 
+                                style="color: rgb(99, 230, 190);"></i>
+                            Place Order
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+   <script>
+        
+        console.log("hi from js before function");
+
+        const form = document.getElementById("checkoutForm");
+
+        form.addEventListener("submit", function () {
+
+            const btn = this.querySelector("button[type='submit']");
+
+            btn.disabled = true;
+            btn.innerHTML = "Processing...";
+        });
+
+
+        console.log('hi after function');
+    </script>
+}

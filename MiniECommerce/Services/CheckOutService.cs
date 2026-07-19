@@ -1,109 +1,174 @@
-﻿using Microsoft.AspNetCore.Http;
-using MiniECommerce.Areas.Customer.ViewModels;
+﻿using MiniECommerce.Areas.Customer.ViewModels;
 using MiniECommerce.Extensions;
 using MiniECommerce.Models;
-using System;
-using System.Linq.Expressions;
-using System.Transactions;
+using MiniECommerce.Interfaces.Repositories;
 
 namespace MiniECommerce.Services
 {
     public class CheckoutService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IOrderService _orderService;
         private readonly IOrderItemService _orderItemService;
         private readonly IProductService _productService;
-        private readonly ApplicationDbContext _context;
         private readonly CartService _cartService;
-        public CheckoutService(IOrderService orderService,IOrderItemService orderItemService,IProductService productService,ApplicationDbContext context, CartService cartService)
+
+        public CheckoutService(
+            IUnitOfWork unitOfWork,
+            IOrderService orderService,
+            IOrderItemService orderItemService,
+            IProductService productService,
+            CartService cartService)
         {
+            _unitOfWork = unitOfWork;
             _orderService = orderService;
             _orderItemService = orderItemService;
             _productService = productService;
-            _context = context;
             _cartService = cartService;
         }
 
-       public CheckoutResult CheckOrderOut(CheckoutVM VM)
+        public async Task<CheckoutResult> CheckOrderOutAsync(string UserId,ProcessCheckoutVM vm)
         {
-            using(var scope = new TransactionScope())
+            // =========================
+            // Validate Cart
+            // =========================
+
+            List<CartItem> cartItems = _cartService.GetAllCartItems();
+
+            List<int> productIds = cartItems
+                .Select(x => x.itemId)
+                .ToList();
+
+            List<Product> dbProducts = _productService.GetProductsByIDs(productIds);
+
+            foreach (CartItem cartItem in cartItems)
             {
+                Product? product = dbProducts
+                    .FirstOrDefault(p => p.ProductId == cartItem.itemId);
+
+                if (product == null)
+                {
+                    return new CheckoutResult
+                    {
+                        Success = false,
+                        Message = $"{cartItem.ProductName} is no longer available."
+                    };
+                }
+
+                if (product.StockQuantity < cartItem.Quantity)
+                {
+                    return new CheckoutResult
+                    {
+                        Success = false,
+                        Message = $"Insufficient stock for {product.ProductName}. Only {product.StockQuantity} available."
+                    };
+                }
+            }
+
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+
                 try
                 {
-                    // 1- Validate Stock Quantity For each item in cart with its corresponding in DB
-                    List<int> IDs = _cartService.GetAllCartitemsIds();
-                    var DBProducts = _productService.GetProductsByIDs(IDs);
-                    List<CartItem> cartItems = _cartService.GetAllCartItems();
-                    foreach (CartItem cartItem in cartItems)
-                    {
-                        var DBItem = DBProducts.Find(p => p.ProductId == cartItem.itemId);
-                        
-                        if (DBItem!.StockQuantity < cartItem.Quantity)
-                        {
-                            return new CheckoutResult { Success = false, Message = "Insufficient stock" };
-                        }
-                    }
-                     
-                    // 2- Place Order in DB
+                    // =========================
+                    // Create Order
+                    // =========================
 
-                    var order = new Order
+                    Order order = new()
                     {
-                        ApplicationUserId = VM.UserId,
-                        ShippingAddressId = VM.ShippingAddressId,
+                        ApplicationUserId = UserId,
+                        ShippingAddressId = vm.ShippingAddressId,
                         Status = OrderStatus.Placed,
-                        TotalAmount = _cartService.GetAllCartItems().Sum(i => i.LineTotal),
+                        TotalAmount = cartItems.Sum(x => x.LineTotal),
                         OrderDate = DateTime.Now,
                         OrderNumber = _orderService.GetUniqueOrderNumber()
                     };
 
-                    var Created = _orderService.CreateOrder(order);
-                    
-                    if (!Created)
+                    _orderService.CreateOrder(order); // one call — EF tracks the whole graph from here
+
+                    bool orderCreated = _orderService.CreateOrder(order);
+
+                    if (!orderCreated)
                     {
-                        return new CheckoutResult { Success = false, Message = "Order Couldn't be placed Properly" };
+                        await transaction.RollbackAsync();
+
+                        return new CheckoutResult
+                        {
+                            Success = false,
+                            Message = "Failed to create order."
+                        };
                     }
 
-                    // 3- Place Order Items in DB and Reduce Stock Quantity of each Product
+                    // =========================
+                    // Create Order Items
+                    // Update Stock
+                    // =========================
 
-                    foreach (var item in _cartService.GetAllCartItems())
+                    foreach (CartItem item in cartItems)
                     {
-                        var OrderItem = new OrderItem()
+                        _orderItemService.CreateOrderItem(new OrderItem
                         {
-                            OrderId = order.OrderId,
-                            Quantity = item.Quantity,
+                            Order = order,   // Relationship-Fixup
                             ProductId = item.itemId,
+                            Quantity = item.Quantity,
                             UnitPriceAtPurchase = item.UnitPriceAtPurchase,
                             LineTotal = item.LineTotal
-                        };
-                        
-                        var created = _orderItemService.CreateOrderItem(OrderItem);
-                        
-                        if (created)
-                        {
-                            var product = _productService.GetProductById(item.itemId);
-                            if (product != null)
-                                product.StockQuantity -= item.Quantity;
-                        }
+                        });
 
-                        else
-                        {
-                            return new CheckoutResult { Success = false, Message = "We couldn't Place All orderItems Checkout RolledBack" };
-                        }
+                        Product product = dbProducts
+                            .First(p => p.ProductId == item.itemId);
+
+                        product.StockQuantity -= item.Quantity;
+
+                        _productService.UpdateProduct(product);
                     }
+                    //======// Another Approch for the previous 2 steps========
+                        //Order order = new()
+                        //{
+                        //    ApplicationUserId = UserId,
+                        //    ShippingAddressId = vm.ShippingAddressId,
+                        //    Status = OrderStatus.Placed,
+                        //    TotalAmount = cartItems.Sum(x => x.LineTotal),
+                        //    OrderDate = DateTime.Now,
+                        //    OrderNumber = _orderService.GetUniqueOrderNumber(),
+                        //    OrderItems = cartItems.Select(item => new OrderItem
+                        //    {
+                        //        ProductId = item.itemId,
+                        //        Quantity = item.Quantity,
+                        //        UnitPriceAtPurchase = item.UnitPriceAtPurchase,
+                        //        LineTotal = item.LineTotal
+                        //    }).ToList()
+                        //};
+                    //===================================
+                    await Task.Delay(5000);
 
-                    scope.Complete();
+                    await _unitOfWork.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
 
                     _cartService.RemoveCartCookie();
 
-                    return new CheckoutResult { Success = true, Message = "Order Placed Successfully" };
+                    return new CheckoutResult
+                    {
+                        Success = true,
+                        Message = "Order placed successfully!",
+                        OrderId = order.OrderId,
+                        OrderNumber = order.OrderNumber
+                    };
+
                 }
 
-                catch
+                catch (Exception ex)
                 {
-                    return new CheckoutResult { Success = false, Message = "Error Processing Your Order" };
+                    await transaction.RollbackAsync();
+
+                    return new CheckoutResult
+                    {
+                        Success = false,
+                        Message = $"Error processing your order: {ex.Message}"
+                    };
                 }
             }
-        }     
-
+        }
     }
 }

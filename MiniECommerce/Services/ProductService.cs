@@ -66,42 +66,29 @@ namespace MiniECommerce.Services
             if (File.Exists(fullPath))
                 File.Delete(fullPath);
         }
-    
+
         public bool CreateProduct(Product product)
         {
-            bool ProductExists = _repository.CheckUniquness(product.SKU!);
-            if (ProductExists)
-            {
-                return false;
-            }
+            bool productExists = _repository.CheckUniquness(product.SKU!);
 
-            try
-            {
-                _repository.Insert(product);
-                _repository.Save();
-                return true;
-            }
-            catch {
+            if (productExists)
                 return false;
-            }
+
+            _repository.Insert(product);
+
+            return true;
         }
 
         public bool DeleteProduct(int id)
         {
-            var productTobeDeleted = _repository.GetById(id);
+            var productToBeDeleted = _repository.GetById(id);
 
-            if (productTobeDeleted == null)
+            if (productToBeDeleted == null)
                 return false;
-            try
-            {
-                _repository.Delete(productTobeDeleted);
-                _repository.Save();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+
+            _repository.Delete(productToBeDeleted);
+
+            return true;
         }
 
         public List<Product> GetAllProducts() // Browse
@@ -130,18 +117,11 @@ namespace MiniECommerce.Services
             return _repository.SearchProducts(keyword);
         }
 
-        public bool UpdateProduct(Product Product)
+        public void UpdateProduct(Product Product)
         {
-            try
-            {
+
                 _repository.Update(Product);
-                _repository.Save();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+       
         }
 
         public List<Product> GetProductsByIDs(List<int> productIds)

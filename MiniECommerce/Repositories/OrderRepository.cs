@@ -34,10 +34,13 @@ namespace MiniECommerce.Repositories
                 .FirstOrDefault();
         }
 
-        public List<Order> GetOrdersForUser(string UserId)
+        public List<OrderDto> GetOrdersForUser(string userId)
         {
             return _context.Orders
-                            .Where(o => o.ApplicationUserId == UserId).ToList();
+                .Where(o => o.ApplicationUserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .Select(ToDto)
+                .ToList();
         }
 
         // This field helps to DRY principle

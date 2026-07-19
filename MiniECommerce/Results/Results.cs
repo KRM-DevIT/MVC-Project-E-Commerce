@@ -28,6 +28,8 @@
     {
         public bool Success { get; set; }
         public string Message { get; set; } = null!;
+        public int? OrderId { get; set; }
+        public string? OrderNumber { get; set; }
     }
 
 }

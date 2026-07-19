@@ -24,11 +24,25 @@ namespace MiniECommerce.Areas.Customer.Controllers
         // Edit it to show the same behavior as the others
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Add(int productId )
+        public IActionResult Add(int productId, int quantity = 1)
         {
-            _cartService.AddToCart(productId);
+            var result = _cartService.AddToCart(productId, quantity);
+
             var count = _cartService.GetAllCartItems().Count;
-            return RedirectToAction("Index");
+
+            return Json(new
+            {
+                success = result == AddToCartResult.Success,
+                count = count
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddAndGoToCart(int productId, int quantity = 1)
+        {
+            _cartService.AddToCart(productId, quantity);
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -43,9 +57,9 @@ namespace MiniECommerce.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Remove(int itemId)
         {
-            _cartService.RemoveItemFromCart(itemId);
+            bool removed = _cartService.RemoveItemFromCart(itemId);
             var count = _cartService.GetAllCartItems().Count;
-            return Json(new { success = true, count });
+            return Json(new { success = removed, count = count });
         }
     }
 }

@@ -6,12 +6,14 @@
 
         Address? GetAddressById(string userid, int id);
         
-        bool UpdateAddress(Address address);
+        void UpdateAddress(Address address);
 
-        bool DeleteAddress(Address address);
+        void DeleteAddress(Address address);
 
-        bool AddNewAddress(Address address);
+        void AddNewAddress(Address address);
 
         bool SetAddressDefault(string UserId, int AddressId);
+
+        void RemoveDefault(string UserId);
     }
 }

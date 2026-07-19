@@ -184,7 +184,7 @@
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="productId" value="@product.ProductId" />
                                             <button type="button" class="btn-cart w-100" id="cartItem-@product.ProductId" @(outOfStock ? "disabled" : "")
-                                                    onclick="increaseCounterAndAjax(@product.ProductId, @product.StockQuantity)">
+                                                    onclick="increaseCounterAndAjax(@product.ProductId)">
                                                 @(outOfStock ? "Unavailable" : "🛒 Add to Cart")
                                             </button>
                                         </form>
@@ -274,40 +274,62 @@
 </div>
 
 @section Scripts {
+
+    <script>
+
+        const cartProducts =
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CartProductIds));
+
+    </script>
+
+
+    
     <script>
             
             var counter = 0;
-            const itemsList = [];
+            // const itemsList = [];
+           
+            document.addEventListener("DOMContentLoaded", function () {
 
-             function increaseCounterAndAjax(productId, stockQuantity) 
+            cartProducts.forEach(function(productId)
+            {
+
+                $("#cartItem-" + productId).prop("disabled", true);
+
+            });
+
+        });
+             function increaseCounterAndAjax(productId) 
              {
 
-             let existingItem = itemsList.find(item => item.productId === productId);
+                 // let existingItem = itemsList.find(item => item.productId === productId);
 
-             if (!existingItem) 
-             {
-                 existingItem = { productId: productId, StockQuantity: stockQuantity, QuantityAdded: 1 };
-                 itemsList.push(existingItem);
-             } 
+                 // if (!existingItem) 
+                 // {
+                 //     existingItem = { productId: productId, StockQuantity: stockQuantity, QuantityAdded: 1 };
+                 //     itemsList.push(existingItem);
+                 // } 
              
-             else 
-             {
-                 if (existingItem.QuantityAdded < existingItem.StockQuantity) 
-                 {
-                     existingItem.QuantityAdded++;
-                 }
-             }
+                 // else 
+                 // {
+                 //     if (existingItem.QuantityAdded < existingItem.StockQuantity) 
+                 //     {
+                 //         existingItem.QuantityAdded++;
+                 //     }
+                 // }
+
 
               let btn = $("#cartItem-" + productId);
-              if(existingItem.QuantityAdded >= existingItem.StockQuantity) // nn case first time
-              {
-                 btn.prop('disabled', true);
-              }
+              btn.prop('disabled', true);
+              // if(existingItem.QuantityAdded >= existingItem.StockQuantity) nn case first time
+              // {
+              //    btn.prop('disabled', true);
+              // }
               
-             var counter = parseInt(localStorage.getItem('cartCounter') || '0');
-             counter++;
-             localStorage.setItem('cartCounter', counter);
-             $("#cartCount").text(counter);
+             // var counter = parseInt(localStorage.getItem('cartCounter') || '0');
+             // counter++;
+             // localStorage.setItem('cartCounter', counter);
+             // $("#cartCount").text(counter);
 
 
              $.ajax({
@@ -317,16 +339,21 @@
                      __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
                      productId: productId
                  },
-                 
-                 success: function (response) 
+
+                  success: function (response)
                  {
-                     $("#cartCount").text(response.count);
-                     localStorage.setItem("cartCounter", response.count)
+                     if(response.success)
+                     {
+                         $("#cartCount").text(response.count);
+                     }
                  },
-                 
-                 error: function(xhr, status, error) {
-                     console.error('Error adding product to cart', error);
-                 }
+
+                  error: function ()
+                    {
+                        btn.prop("disabled", false);
+
+                        alert("Couldn't add product to cart.");
+                    }
              });
          }
 

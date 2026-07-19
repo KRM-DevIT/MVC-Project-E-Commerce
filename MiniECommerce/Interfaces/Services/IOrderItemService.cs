@@ -4,7 +4,7 @@
     {
         List<OrderItem> GetAllOrderItemsPerProduct(int productId);
         List<OrderItem> GetAllOrderItemsPerOrder(int orderId);
-        bool CreateOrderItem(OrderItem item);
+        void CreateOrderItem(OrderItem item);
 
     }
 }

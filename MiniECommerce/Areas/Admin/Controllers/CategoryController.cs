@@ -10,10 +10,11 @@ namespace MiniECommerce.Areas.Admin.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
-        
-        public CategoryController(ICategoryService categoryService)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryController(ICategoryService categoryService , IUnitOfWork unitOfWork)
         {
             _categoryService = categoryService; 
+            _unitOfWork = unitOfWork;
         }
         
         public IActionResult Index()
@@ -36,23 +37,38 @@ namespace MiniECommerce.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(nameof(Create),model);
+                model.Categories = _categoryService.CategoryDropDownList();
+                return View(nameof(Create), model);
             }
 
-            var categoryDB = new Category() { 
+            var category = new Category
+            {
                 CategoryName = model.CategoryName,
                 ParentCategoryId = model.ParentCategoryId
             };
-            var result = _categoryService.CreateNewCategory(categoryDB);
 
-            if(result)
+            bool result = _categoryService.CreateNewCategory(category);
+
+            if (!result)
             {
+                model.Categories = _categoryService.CategoryDropDownList();
+                ModelState.AddModelError(nameof(model.CategoryName), "Not Unique Name");
+                return View(nameof(Create), model);
+            }
+
+            try
+            {
+                _unitOfWork.SaveChanges();
+
                 return RedirectToAction(nameof(Index));
             }
-            model.Categories = _categoryService.CategoryDropDownList();
-            ModelState.AddModelError(nameof(model.CategoryName), "Not Unique Name");
-            return View(nameof(Create),model);
-           
+            catch (Exception)
+            {
+                model.Categories = _categoryService.CategoryDropDownList();
+                ModelState.AddModelError("", "An error occurred while saving the category.");
+
+                return View(nameof(Create), model);
+            }
         }
 
         [HttpGet]
@@ -98,19 +114,34 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
             if (category == null)
             {
-                return RedirectToAction("NotFoundPage", "Error", new { area = "", message = "Couldn't Find Category To Edit May be Deleted" });
+                return RedirectToAction(
+                    "NotFoundPage",
+                    "Error",
+                    new
+                    {
+                        area = "",
+                        message = "Couldn't Find Category To Edit May be Deleted"
+                    });
             }
 
             category.CategoryName = model.CategoryName;
             category.ParentCategoryId = model.ParentCategoryId;
 
-            var result = _categoryService.UpdateCategory(category);
+            try
+            {
+                _categoryService.UpdateCategory(category);
 
-            if (result)
+                _unitOfWork.SaveChanges();
+
                 return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                model.Categories = _categoryService.CategoryDropDownList();
+                ModelState.AddModelError("", "Error updating category.");
 
-            ModelState.AddModelError("", "Error updating category");
-            return View(model);
+                return View(model);
+            }
         }
 
         [HttpGet]
@@ -130,12 +161,21 @@ namespace MiniECommerce.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var result = _categoryService.DeleteCategory(id);
+            bool result = _categoryService.DeleteCategory(id);
 
-            if (result)
+            if (!result)
+                return BadRequest();
+
+            try
+            {
+                _unitOfWork.SaveChanges();
+
                 return RedirectToAction(nameof(Index));
-
-            return BadRequest();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
     }
 }

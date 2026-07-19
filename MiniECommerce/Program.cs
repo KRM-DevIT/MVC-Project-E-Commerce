@@ -87,6 +87,9 @@ namespace MiniECommerce
             //---------------------- Add-Dependency_Injection HERE ----------------------------
 
             #region InterfacesInjection
+                // Unit of Work pattern - centralized repository management
+                builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+                
                 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
                 builder.Services.AddScoped<IProductRepository, ProductRepository>();
                 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -106,6 +109,7 @@ namespace MiniECommerce
             builder.Services.AddSession(); // MiddleWare adds session service to the application, allowing you to store and retrieve user-specific data across multiple requests. 
 
             builder.Services.AddScoped<CartService>();
+            builder.Services.AddScoped<CheckoutService>();
 
             //======================================
 

@@ -188,7 +188,7 @@
             
             @if (SignInManager.IsSignedIn(User))
             {
-                <form asp-area="Customer" asp-controller="Cart" asp-action="Add" method="post">
+                <form asp-area="Customer" asp-controller="Cart" asp-action="AddAndGoToCart" method="post">
                     @* Send the quantity as a route value *@
                      
                     @Html.AntiForgeryToken()

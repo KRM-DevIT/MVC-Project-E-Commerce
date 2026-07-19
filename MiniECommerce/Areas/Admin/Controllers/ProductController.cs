@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MiniECommerce.Areas.Admin.ViewModels.ProductViewModels;
+using MiniECommerce.Interfaces.Repositories;
 using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -12,10 +13,12 @@ namespace MiniECommerce.Areas.Admin.Controllers
     {
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
-        public ProductController(IProductService productService, ICategoryService categoryService)
+        private IUnitOfWork _unitOfWork;
+        public ProductController(IProductService productService, ICategoryService categoryService,IUnitOfWork unitOfWork)
         {
             _productService = productService;
             _categoryService = categoryService;
+            _unitOfWork = unitOfWork;
         }
 
         //================= INDEX =======================================
@@ -82,21 +85,26 @@ namespace MiniECommerce.Areas.Admin.Controllers
                 model.categories = _categoryService.CategoryDropDownList();
                 return View(model);
             }
+
             // --------------------------Handle image upload-----------------
             string? imagePath = null;
+
             if (model.ImageFile != null)
             {
                 var (success, filePath, error) = await _productService.SaveImageAsync(model.ImageFile);
+
                 if (!success)
                 {
                     ModelState.AddModelError(nameof(model.ImageFile), error!);
                     model.categories = _categoryService.CategoryDropDownList();
                     return View(model);
                 }
+
                 imagePath = filePath;
             }
+
             //============== ADD TO DB=====================
-            var productDB = new Product()
+            var productDB = new Product
             {
                 ProductName = model.ProductName,
                 CurrentPrice = model.CurrentPrice,
@@ -107,20 +115,36 @@ namespace MiniECommerce.Areas.Admin.Controllers
                 CategoryId = model.CategoryId,
             };
 
-            var categoryName = _categoryService.GetCategoryById(model.CategoryId)!.CategoryName;
-            productDB.SKU = _productService.GenerateUniqueSKU(model.ProductName, categoryName);
+            var categoryName = _categoryService
+                .GetCategoryById(model.CategoryId)!.CategoryName;
 
-            var result = _productService.CreateProduct(productDB);
-            //=======================================
-            if (result)
+            productDB.SKU = _productService.GenerateUniqueSKU(
+                model.ProductName,
+                categoryName);
+
+            bool result = _productService.CreateProduct(productDB);
+
+            if (!result)
             {
-                TempData["SuccessMessage"] = "Product Created Succefully";
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, "Product SKU already exists.");
+                model.categories = _categoryService.CategoryDropDownList();
+                return View(model);
             }
 
-            ModelState.AddModelError(string.Empty, "Error Occurred while saving Product");
-            model.categories = _categoryService.CategoryDropDownList();
-            return View(model);
+            try
+            {
+                _unitOfWork.SaveChanges();
+
+                TempData["SuccessMessage"] = "Product Created Successfully";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Error occurred while saving product.");
+                model.categories = _categoryService.CategoryDropDownList();
+                return View(model);
+            }
         }
 
         // ── EDIT GET ──────────────────────────────────────────────────────────────
@@ -163,24 +187,26 @@ namespace MiniECommerce.Areas.Admin.Controllers
             }
 
             var product = _productService.GetProductById(id);
+
             if (product == null)
                 return RedirectToAction("NotFoundPage", "Error", new { area = "" });
-            
-            
+
             string? oldImagePath = product.ImageUrl;
-            // Handle image — only replace if a new file was uploaded
+
+            // Handle image upload
             if (model.ImageFile != null)
             {
                 var (success, filePath, error) = await _productService.SaveImageAsync(model.ImageFile);
+
                 if (!success)
                 {
                     ModelState.AddModelError(nameof(model.ImageFile), error!);
                     model.categories = _categoryService.CategoryDropDownList();
-                    model.ExistingImageUrl = product.ImageUrl; // restore preview
+                    model.ExistingImageUrl = product.ImageUrl;
                     return View(model);
                 }
 
-                product.ImageUrl = filePath; // update the ImagePath
+                product.ImageUrl = filePath;
             }
 
             product.ProductName = model.ProductName;
@@ -190,23 +216,34 @@ namespace MiniECommerce.Areas.Admin.Controllers
             product.IsActive = model.IsActive;
             product.CategoryId = model.CategoryId;
 
-            var result = _productService.UpdateProduct(product);
-            if (result)
+            try
             {
-                if(model.ImageFile !=null) 
-                    _productService.DeleteImage(product.ImageUrl); // will delete the old image from server
+                _productService.UpdateProduct(product);
+
+                _unitOfWork.SaveChanges();
+
+                if (model.ImageFile != null)
+                    _productService.DeleteImage(oldImagePath); // Delete old image after DB update succeeds
 
                 TempData["SuccessMessage"] = "Product updated successfully.";
+
                 return RedirectToAction(nameof(Details), new { id = product.ProductId });
             }
+            catch (Exception)
+            {
+                // Delete the newly uploaded image if DB update failed
+                if (model.ImageFile != null)
+                {
+                    _productService.DeleteImage(product.ImageUrl);
+                    product.ImageUrl = oldImagePath;
+                }
 
-            if (model.ImageFile != null) // if db update failed will delete the new image from server
-                _productService.DeleteImage(product.ImageUrl);
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
+                model.categories = _categoryService.CategoryDropDownList();
+                model.ExistingImageUrl = oldImagePath;
 
-            ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
-            model.categories = _categoryService.CategoryDropDownList();
-            model.ExistingImageUrl = oldImagePath; // if update didn't go fine we restore the last image (no delete done)
-            return View(model);
+                return View(model);
+            }
         }
 
         // ── DELETE POST ───────────────────────────────────────────────────────────
@@ -215,20 +252,36 @@ namespace MiniECommerce.Areas.Admin.Controllers
         public IActionResult Delete(int id)
         {
             var product = _productService.GetProductById(id);
+
             if (product == null)
+            {
                 return RedirectToAction("NotFoundPage", "Error", new { area = "" });
+            }
 
             _productService.DeleteImage(product.ImageUrl);
 
-            var result = _productService.DeleteProduct(id);
-            if (result)
+            bool result = _productService.DeleteProduct(id);
+
+            if (!result)
             {
-                TempData["SuccessMessage"] = $"'{product.ProductName}' was deleted successfully.";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = "Product not found.";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
-            TempData["ErrorMessage"] = "An error occurred while deleting the product.";
-            return RedirectToAction(nameof(Details), new { id });
+            try
+            {
+                _unitOfWork.SaveChanges();
+
+                TempData["SuccessMessage"] = $"'{product.ProductName}' was deleted successfully.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An error occurred while deleting the product.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
     }

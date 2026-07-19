@@ -7,7 +7,7 @@ namespace MiniECommerce.Interfaces.Services
         // === User Functions
         bool CreateOrder(Order order);
         Order? GetOrderDetails(int orderId);
-        List<Order> GetOrdersForUser(string userId);
+        List<OrderDto> GetOrdersForUser(string userId);
         List<Order> GetAllOrders();
        
         // === Admin Functions

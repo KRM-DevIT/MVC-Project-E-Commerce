@@ -39,9 +39,9 @@ namespace MiniECommerce.Repositories
             _dbSet.Remove(item);
         }
 
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
+        //public void Save()
+        //{
+        //    _context.SaveChanges();
+        //}
     }
 }

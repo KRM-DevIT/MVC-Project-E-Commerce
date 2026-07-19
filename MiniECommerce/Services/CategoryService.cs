@@ -21,7 +21,6 @@ namespace MiniECommerce.Services
                 return false; // Not Unique Name
             }
              _repository.Insert(category);
-             _repository.Save();
             
                return true;
             
@@ -36,7 +35,6 @@ namespace MiniECommerce.Services
                 return false;
 
             _repository.Delete(categoryTobeDeleted);
-            _repository.Save();
             return true;
 
         }
@@ -61,15 +59,11 @@ namespace MiniECommerce.Services
             return _repository.CategoryByName(categoryName);
         }
 
-        public bool UpdateCategory(Category category)
+        public void UpdateCategory(Category category)
         {
-            try
-            {
+  
                 _repository.Update(category);
-                _repository.Save();
-                return true;
-            }
-            catch  { return false;     }
+  
         }
 
         public List<SelectListItem> CategoryDropDownList()

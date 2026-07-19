@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MiniECommerce.Areas.Customer.ViewModels.Catalog;
 using MiniECommerce.Models;
+using MiniECommerce.Services;
 
 namespace MiniECommerce.Areas.Customer.Controllers
 {
@@ -11,11 +12,12 @@ namespace MiniECommerce.Areas.Customer.Controllers
     {
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
-
-        public CatalogController(ICategoryService categoryService, IProductService productService)
+        private readonly CartService _cartService;
+        public CatalogController(ICategoryService categoryService, IProductService productService , CartService cartService)
         {
             _categoryService = categoryService;
             _productService = productService;
+            _cartService = cartService; 
         }
         [HttpGet]
         public IActionResult Index(int pageNumber = 1, int pageSize = 10)
@@ -43,7 +45,8 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 Products = products,
                 CurrentPage = pageNumber,
                 TotalCount = TotalCount,
-                PageSize = pageSize
+                PageSize = pageSize,
+                CartProductIds = _cartService.GetAllCartitemsIds()
             };
             return View(nameof(Index),model);
         }
@@ -75,7 +78,8 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 CurrentPage = pageNumber,
                 TotalCount = TotalCount,
                 PageSize = pageSize,
-                SelectedCategories = Selectedcategories
+                SelectedCategories = Selectedcategories,
+                CartProductIds = _cartService.GetAllCartitemsIds()
             };
 
             return View(nameof(Index), model);
@@ -99,7 +103,8 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 CurrentPage = pageNumber,
                 TotalCount = TotalCount,
                 PageSize = pageSize,
-                SelectedCategories = Selectedcategories
+                SelectedCategories = Selectedcategories,
+                CartProductIds = _cartService.GetAllCartitemsIds()
             };
 
             return View(nameof(Index), model);

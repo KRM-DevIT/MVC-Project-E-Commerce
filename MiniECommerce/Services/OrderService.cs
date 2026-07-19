@@ -12,13 +12,12 @@ namespace MiniECommerce.Services
         }
 
         // ================ User-Services=======================
-        public bool CreateOrder(Order order)
+        public bool CreateOrder(Order order) //1
         {
             bool orderExists = _repository.CheckUniquness(order.OrderNumber);
             if (orderExists) return false;
 
             _repository.Insert(order);
-            _repository.Save();
             return true;
         }
 
@@ -32,7 +31,7 @@ namespace MiniECommerce.Services
             return _repository.GetById(orderId);
         }
 
-        public List<Order> GetOrdersForUser(string userId)
+        public List<OrderDto> GetOrdersForUser(string userId)
         {
             return _repository.GetOrdersForUser(userId);
         }
@@ -48,14 +47,14 @@ namespace MiniECommerce.Services
             return _repository.GetByIdWithDetails(orderId);
         }
 
-        public bool UpdateOrderStatus(int orderId, OrderStatus status)
+        public bool UpdateOrderStatus(int orderId, OrderStatus status) //2
         {
             var order = _repository.GetById(orderId);
             if (order == null) return false;
 
             order.Status = status;
             _repository.Update(order);
-            _repository.Save();
+            
             return true;
         }
 

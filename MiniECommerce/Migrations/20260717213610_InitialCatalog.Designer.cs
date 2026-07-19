@@ -12,7 +12,7 @@ using MiniECommerce.Data;
 namespace MiniECommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260327013704_Initial-Catalog")]
+    [Migration("20260717213610_InitialCatalog")]
     partial class InitialCatalog
     {
         /// <inheritdoc />
@@ -361,7 +361,10 @@ namespace MiniECommerce.Migrations
             modelBuilder.Entity("MiniECommerce.Models.OrderItem", b =>
                 {
                     b.Property<int>("OrderItemId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
 
                     b.Property<decimal>("LineTotal")
                         .HasPrecision(10, 2)
@@ -381,6 +384,8 @@ namespace MiniECommerce.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("OrderItemId");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -532,7 +537,7 @@ namespace MiniECommerce.Migrations
                 {
                     b.HasOne("MiniECommerce.Models.Order", "Order")
                         .WithMany("OrderItems")
-                        .HasForeignKey("OrderItemId")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

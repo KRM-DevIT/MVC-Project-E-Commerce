@@ -14,7 +14,7 @@ namespace MiniECommerce.Interfaces.Services
         bool CreateProduct(Product Product);
 
         // Update Product
-        bool UpdateProduct(Product Product);
+        void UpdateProduct(Product Product);
 
         // Delete Product
         bool DeleteProduct(int id);
