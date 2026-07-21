@@ -36,6 +36,11 @@ namespace MiniECommerce.Services
             return _repository.GetOrdersForUser(userId);
         }
 
+        public OrderDto? GetOrderForUser(string userId, int orderId)
+        {
+            return _repository.GetOrderForUser(userId, orderId);
+        }
+
         // =================== Admin Services======================
 
         public List<OrderDto> GetAllOrdersWithDetails()
@@ -62,5 +67,6 @@ namespace MiniECommerce.Services
         {
             return "ORD" + Guid.NewGuid().ToString().Substring(2, 10);
         }
+
     }
 }

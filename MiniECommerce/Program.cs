@@ -25,7 +25,8 @@ namespace MiniECommerce
             });
 
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>
-                (options => {
+                (
+                options => {
                     options.Password.RequireDigit = true;              // Require at least one number (0-9)
                     options.Password.RequireLowercase = true;          // Require at least one lowercase letter
                     options.Password.RequireUppercase = true;          // Require at least one uppercase letter
@@ -80,7 +81,21 @@ namespace MiniECommerce
                     context.Response.Redirect(loginPath + "?ReturnUrl=" + Uri.EscapeDataString(context.Request.Path));               
                     return Task.CompletedTask;
                 };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    var area = context.Request.RouteValues["area"]?.ToString();
 
+                    if (area == "Admin")
+                    {
+                        context.Response.Redirect("/Admin/Account/AccessDenied");
+                    }
+                    else
+                    {
+                        context.Response.Redirect("/Customer/Account/AccessDenied");
+                    }
+
+                    return Task.CompletedTask;
+                };
             });
 
             //===========================================================================================================================

@@ -11,5 +11,7 @@ namespace MiniECommerce.Interfaces.Repositories
         List<OrderDto> GetAllOrdersWithDetails();
 
         OrderDto? GetByIdWithDetails(int orderId);
+
+        OrderDto? GetOrderForUser(string userId, int orderId);
     }
 }

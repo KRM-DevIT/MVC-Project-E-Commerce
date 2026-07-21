@@ -9,7 +9,10 @@ namespace MiniECommerce.Interfaces.Services
         Order? GetOrderDetails(int orderId);
         List<OrderDto> GetOrdersForUser(string userId);
         List<Order> GetAllOrders();
-       
+
+        public OrderDto? GetOrderForUser(string userId, int orderId);
+
+
         // === Admin Functions
 
         bool UpdateOrderStatus(int orderId, OrderStatus status); 

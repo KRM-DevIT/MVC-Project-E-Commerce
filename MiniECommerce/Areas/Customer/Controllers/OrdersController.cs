@@ -26,8 +26,12 @@ namespace MiniECommerce.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Details(int id) 
         {
-            var order = _orderService.GetOrderWithDetails(id);
-            
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var order = _orderService.GetOrderForUser(userId, id);
+
+            if (order == null)
+                return NotFound();
+
             return View(order);
         }
     }

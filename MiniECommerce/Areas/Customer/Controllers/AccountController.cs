@@ -150,6 +150,11 @@ namespace MiniECommerce.Areas.Customer.Controllers
             }
         #endregion
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
     }
 }
 

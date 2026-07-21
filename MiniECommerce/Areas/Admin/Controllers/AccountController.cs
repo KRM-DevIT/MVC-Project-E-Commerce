@@ -28,7 +28,6 @@ namespace MiniECommerce.Areas.Admin.Controllers
         #region Registration
 
         [HttpGet]
-        [AllowAnonymous]
         [Authorize(Roles ="Admin")]
         public IActionResult AdminRegister()
         {
@@ -36,7 +35,6 @@ namespace MiniECommerce.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [Authorize(Roles ="Admin")]
         public async Task<IActionResult> AdminRegister(AdminRegisterViewModel model)
@@ -110,8 +108,13 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
             if (user == null)
             {
+                ModelState.AddModelError("", "Invalid login.");
+                return View(model);
+            }
 
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                ModelState.AddModelError("", "You are not authorized.");
                 return View(model);
             }
 

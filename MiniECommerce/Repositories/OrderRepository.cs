@@ -43,6 +43,12 @@ namespace MiniECommerce.Repositories
                 .ToList();
         }
 
+        public OrderDto? GetOrderForUser(string userId, int orderId)
+        {
+            return _context.Orders.Where(o => o.OrderId == orderId &&
+             o.ApplicationUserId == userId).Select(ToDto).First();
+        }
+
         // This field helps to DRY principle
         private static readonly Expression<Func<Order, OrderDto>> ToDto = o => new OrderDto
         {
