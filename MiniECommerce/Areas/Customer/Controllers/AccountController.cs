@@ -99,11 +99,19 @@ namespace MiniECommerce.Areas.Customer.Controllers
             }
 
             var user = await _userManager.FindByEmailAsync(model.Email);
-
+                  
             if (user == null)
             {
 
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
+            }
+
+            bool isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+
+            if (!isCustomer)
+            {
+                ModelState.AddModelError(string.Empty, "Email Not Found.");
                 return View(model);
             }
 

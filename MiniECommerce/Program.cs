@@ -163,7 +163,7 @@ namespace MiniECommerce
                 var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
 
-                await DbInitializer.SeedAdminAsync(userManager, roleManager);
+                await DbInitializer.SeedAdminAsync(userManager, roleManager,app.Configuration);
             }
 
             app.Run();
@@ -173,15 +173,27 @@ namespace MiniECommerce
     public static class DbInitializer
     {
         public static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager,
-                                                RoleManager<ApplicationRole> roleManager)
+                                                RoleManager<ApplicationRole> roleManager, 
+                                                IConfiguration configuration)
         {
-            if (!await roleManager.RoleExistsAsync("Admin"))
+
+            var rolesToSeed = new string[] { "Admin", "Customer" };
+            
+            foreach (var roleName in rolesToSeed) // seeding the roles
             {
-                await roleManager.CreateAsync(new ApplicationRole { Name = "Admin",RoleDescription = "Super Admin Role -- Do AnyThing" });
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new ApplicationRole
+                    {
+                        Name = roleName
+                    });
+                }
             }
 
-            var email = "admin@commerce.com";
-            var user = await userManager.FindByEmailAsync(email);
+            var email = configuration["SeedAdmin:Email"];
+            var password = configuration["SeedAdmin:Password"];
+
+            var user = await userManager.FindByEmailAsync(email!);
 
             if (user == null)
             {
@@ -194,7 +206,7 @@ namespace MiniECommerce
                     LastName = "User"
                 };
 
-                await userManager.CreateAsync(user, "Admin123!@#");
+                await userManager.CreateAsync(user, password!);
                 await userManager.AddToRoleAsync(user, "Admin");
             }
         }

@@ -45,8 +45,10 @@ namespace MiniECommerce.Repositories
 
         public OrderDto? GetOrderForUser(string userId, int orderId)
         {
-            return _context.Orders.Where(o => o.OrderId == orderId &&
-             o.ApplicationUserId == userId).Select(ToDto).First();
+            return  _context.Orders
+                            .Where(o => o.OrderId == orderId && o.ApplicationUserId == userId)
+                            .Select(ToDto)
+                            .FirstOrDefault();
         }
 
         // This field helps to DRY principle
@@ -75,26 +77,3 @@ namespace MiniECommerce.Repositories
 
 }
 
-
-// Below are unOptimized Queries that return all the columns from DB ( BAD )
-//public List<Order> GetAllOrdersWithDetails()
-//{
-//    return _context.Orders
-//        .Include(o => o.ApplicationUser)
-//        .Include(o => o.OrderItems)
-//            .ThenInclude(oi => oi.Product)
-//        .Include(o => o.Address)
-//        .OrderByDescending(o => o.OrderDate)
-//        .ToList();
-//}
-
-//// Single order with all details for the details/expand view
-//public Order? GetByIdWithDetails(int orderId)
-//{
-//    return _context.Orders
-//        .Include(o => o.ApplicationUser)
-//        .Include(o => o.OrderItems)
-//            .ThenInclude(oi => oi.Product)
-//        .Include(o => o.Address)
-//        .FirstOrDefault(o => o.OrderId == orderId);
-//}

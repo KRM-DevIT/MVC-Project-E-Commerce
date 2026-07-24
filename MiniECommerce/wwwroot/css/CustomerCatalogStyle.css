@@ -1,5 +1,41 @@
 ﻿
 /* ── Sidebar ───────────────────────────────────────── */
+.storefront-preview-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: .9rem 1rem;
+    border: 1px solid rgba(201,151,58,.35);
+    border-radius: 10px;
+    background: rgba(201,151,58,.1);
+    color: var(--brown-mid);
+    font-size: .84rem;
+}
+
+    .storefront-preview-banner div {
+        display: flex;
+        flex-direction: column;
+        gap: .1rem;
+    }
+
+    .storefront-preview-banner a {
+        flex-shrink: 0;
+        border: 1px solid var(--espresso);
+        border-radius: 7px;
+        padding: .4rem .8rem;
+        color: var(--espresso);
+        font-size: .8rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .storefront-preview-banner a:hover {
+            background: var(--espresso);
+            color: #fff;
+        }
+
 .filter-sidebar {
     background: #fff;
     border: 1px solid var(--border);
@@ -318,4 +354,11 @@
     background: rgba(201,151,58,.1);
     color: var(--gold);
     border-color: var(--gold);
+}
+
+@media (max-width: 576px) {
+    .storefront-preview-banner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 }

@@ -82,7 +82,12 @@ namespace MiniECommerce.Areas.Admin.Controllers
             // If already authenticated, no need to show login page
             if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+
+                return RedirectToAction("Index", "Home", new { area = "" });
 
             }
 

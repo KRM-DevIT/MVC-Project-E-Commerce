@@ -1,28 +1,57 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject UserManager<ApplicationUser> UserManager
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">Admin Panel</a>
+<nav class="navbar navbar-expand-xl navbar-dark admin-navbar shadow-sm">
+    <div class="container-xl">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
+           asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+            <span class="admin-brand-mark">
+                <i class="fa-solid fa-store"></i>
+            </span>
+            ShopHub
+        </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#adminNavbar"
+                aria-controls="adminNavbar" aria-expanded="false"
+                aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="adminNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-house me-1"></i> Store
+                    </a>
                 </li>
 
                 @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="Admin"  asp-controller="Account" asp-action="AdminRegister">Create Admin</a>
+                        <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">
+                            <i class="fa-solid fa-box me-1"></i> Products
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="Admin" asp-controller="Role" asp-action="Index">Manage Roles</a>
+                        <a class="nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index">
+                            <i class="fa-solid fa-receipt me-1"></i> Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Category" asp-action="Index">
+                            <i class="fa-solid fa-layer-group me-1"></i> Categories
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Account" asp-action="AdminRegister">
+                            <i class="fa-solid fa-user-plus me-1"></i> Create Admin
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Role" asp-action="Index">
+                            <i class="fa-solid fa-user-shield me-1"></i> Roles
+                        </a>
                     </li>
                 }
             </ul>
@@ -30,12 +59,18 @@
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <li class="nav-item me-2">
-                        <a class="btn btn-outline-light" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                    <li class="nav-item me-xl-2 mb-2 mb-xl-0">
+                        <a class="btn btn-sm btn-outline-light px-3"
+                           asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                            <i class="fa-solid fa-gauge-high me-1"></i> Dashboard
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <form asp-area="Admin" asp-controller="Account" asp-action="AdminLogout" method="post">
-                            <button type="submit" class="btn btn-danger">Logout</button>
+                        <form asp-area="Admin" asp-controller="Account"
+                              asp-action="AdminLogout" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger px-3">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                            </button>
                         </form>
                     </li>
                 }

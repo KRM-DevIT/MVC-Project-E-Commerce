@@ -7,7 +7,6 @@ using MiniECommerce.Services;
 namespace MiniECommerce.Areas.Customer.Controllers
 {
     [Area("Customer")]
-    [Authorize(Roles = "Customer")]
     public class CatalogController : Controller
     {
         private readonly ICategoryService _categoryService;
@@ -19,12 +18,14 @@ namespace MiniECommerce.Areas.Customer.Controllers
             _productService = productService;
             _cartService = cartService; 
         }
+
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Index(int pageNumber = 1, int pageSize = 10)
         {
             // Get Category List
             // Get Product List paginated
-            var TotalCount = _productService.GetProductCount();
+            var TotalCount = _productService.GetProductCount(activeOnly: true);
             int totalPages = (int)Math.Ceiling(TotalCount / (double)pageSize);
             // server - side validation
             if (pageNumber > totalPages)
@@ -38,7 +39,7 @@ namespace MiniECommerce.Areas.Customer.Controllers
             }
 
             var categories = _categoryService.GetCategoriesWithProducts();
-            var products = _productService.GetProductsWithPagination(pageNumber, pageSize);
+            var products = _productService.GetProductsWithPagination(pageNumber, pageSize, activeOnly: true);
             var model = new CatalogViewModel
             {
                 Categories = categories,
@@ -46,20 +47,30 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 CurrentPage = pageNumber,
                 TotalCount = TotalCount,
                 PageSize = pageSize,
-                CartProductIds = _cartService.GetAllCartitemsIds()
+                CartProductIds = GetCustomerCartProductIds()
             };
             return View(nameof(Index),model);
         }
 
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
             var product = _productService.GetProductById(id);
-            if (product == null)
-                return RedirectToAction("NotFoundPage", "Error", new { area = "" });
+
+            if (product == null || !product.IsActive)
+            {
+                return RedirectToAction(
+                    "NotFoundPage",
+                    "Error",
+                    new { area = "" });
+            }
+
             return View(product);
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ProductsByCategory(List<int> Selectedcategories, int pageNumber = 1, int pageSize = 10)
         {
             if(Selectedcategories == null || Selectedcategories.Count == 0)
@@ -79,12 +90,14 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 TotalCount = TotalCount,
                 PageSize = pageSize,
                 SelectedCategories = Selectedcategories,
-                CartProductIds = _cartService.GetAllCartitemsIds()
+                CartProductIds = GetCustomerCartProductIds()
             };
 
             return View(nameof(Index), model);
         }
 
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Search(List<int> Selectedcategories,string query, int pageNumber = 1, int pageSize = 10)
         {
             // validate query aren't empty
@@ -104,10 +117,17 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 TotalCount = TotalCount,
                 PageSize = pageSize,
                 SelectedCategories = Selectedcategories,
-                CartProductIds = _cartService.GetAllCartitemsIds()
+                CartProductIds = GetCustomerCartProductIds()
             };
 
             return View(nameof(Index), model);
+        }
+
+        private List<int> GetCustomerCartProductIds()
+        {
+            return User.IsInRole("Customer")
+                ? _cartService.GetAllCartitemsIds()
+                : new List<int>();
         }
 
     }

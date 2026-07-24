@@ -187,16 +187,16 @@
                                 <td>@(product.CategoryName ?? "—")</td>
                                 <td>
                                     @{
-                                        var stockClass = product.StockQuantity == 0 ? "stock-critical"
-                                                       : product.StockQuantity <= 3 ? "stock-critical"
-                                                       : product.StockQuantity <= 6 ? "stock-low"
-                                                       : "stock-ok";
-                                        var stockIcon  = product.StockQuantity == 0 ? "&#8855;"
-                                                       : product.StockQuantity <= 3 ? "&#9650;"
-                                                       : "&#9651;";
+                                        var stockClass = product.StockQuantity <= 2
+                                            ? "stock-critical"
+                                            : "stock-low";
+                                        var stockIcon = product.StockQuantity == 0
+                                            ? "fa-circle-xmark"
+                                            : "fa-triangle-exclamation";
                                     }
                                     <span class="stock-pill @stockClass">
-                                        @stockIcon @product.StockQuantity
+                                        <i class="fa-solid @stockIcon" aria-hidden="true"></i>
+                                        <span>@product.StockQuantity</span>
                                     </span>
                                 </td>
                             </tr>

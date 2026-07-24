@@ -32,44 +32,69 @@ namespace MiniECommerce.Areas.Admin.Controllers
         public async Task<IActionResult> IndexAsync()
         {
             var allProducts = _productService.GetAllProducts();
-            var allOrders   = _orderService.GetAllOrders();
-            var allCustomers = await _userManager.GetUsersInRoleAsync("Customer");
+            var allOrders = _orderService.GetAllOrders();
 
-            // ── Stat cards ────────────────────────────────────────────
+            var allCustomers =
+                await _userManager.GetUsersInRoleAsync("Customer");
+
+            var allCategories =
+                _categoryService.GetAllCategories();
+
+            // ApplicationUserId -> customer's full name
+            var customerNames = allCustomers.ToDictionary(
+                customer => customer.Id,
+                customer => customer.FullName);
+
+            // CategoryId -> category name
+            var categoryNames = allCategories.ToDictionary(
+                category => category.CategoryId,
+                category => category.CategoryName);
+
             var vm = new DashboardViewModel
             {
-                TotalProducts   = allProducts.Count,
-                ActiveProducts  = allProducts.Count(p => p.IsActive),
-                TotalOrders     = allOrders.Count,
-                TotalCustomers  = allCustomers.Count,
-                PendingOrders   = allOrders.Count(o => o.Status == OrderStatus.Placed),
-                
+                TotalProducts = allProducts.Count,
 
-                // ── Recent orders table (last 5) ──────────────────────
+                ActiveProducts = allProducts.Count(
+                    product => product.IsActive),
+
+                TotalOrders = allOrders.Count,
+
+                TotalCustomers = allCustomers.Count,
+
+                PendingOrders = allOrders.Count(
+                    order => order.Status == OrderStatus.Placed),
+
                 RecentOrders = allOrders
-                    .OrderByDescending(o => o.OrderDate)
+                    .OrderByDescending(order => order.OrderDate)
                     .Take(5)
-                    .Select(o => new RecentOrderRow
+                    .Select(order => new RecentOrderRow
                     {
-                        OrderId      = o.OrderId,
-                        OrderNumber  = o.OrderNumber,
-                        CustomerName = o.ApplicationUser?.FullName ?? "—",
-                        TotalAmount  = o.TotalAmount,
-                        Status       = o.Status,
-                        OrderDate    = o.OrderDate
+                        OrderId = order.OrderId,
+                        OrderNumber = order.OrderNumber,
+
+                        CustomerName = customerNames.GetValueOrDefault(
+                            order.ApplicationUserId,
+                            "Unknown customer"),
+
+                        TotalAmount = order.TotalAmount,
+                        Status = order.Status,
+                        OrderDate = order.OrderDate
                     })
                     .ToList(),
 
-                // ── Low stock table (stock < threshold) ───────────────
                 LowStockProducts = allProducts
-                    .Where(p => p.StockQuantity < LowStockThreshold)
-                    .OrderBy(p => p.StockQuantity)
-                    .Select(p => new LowStockRow
+                    .Where(product =>
+                        product.StockQuantity < LowStockThreshold)
+                    .OrderBy(product => product.StockQuantity)
+                    .Select(product => new LowStockRow
                     {
-                        ProductId     = p.ProductId,
-                        ProductName   = p.ProductName,
-                        StockQuantity = p.StockQuantity,
-                        CategoryName  = p.Category?.CategoryName
+                        ProductId = product.ProductId,
+                        ProductName = product.ProductName,
+                        StockQuantity = product.StockQuantity,
+
+                        CategoryName = categoryNames.GetValueOrDefault(
+                            product.CategoryId,
+                            "Unknown category")
                     })
                     .ToList()
             };

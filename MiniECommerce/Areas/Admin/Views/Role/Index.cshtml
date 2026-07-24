@@ -1,57 +1,102 @@
-﻿@model List<ApplicationRole>
+@model List<ApplicationRole>
 
 @{
     ViewData["Title"] = "Roles";
 }
 
-<h1>Role Management</h1>
+<div class="admin-page-header">
+    <div>
+        <span class="admin-eyebrow">Access management</span>
+        <h1>Roles</h1>
+        <p>Organize permissions with recognizable names, descriptions, and icons.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fa-solid fa-plus me-2"></i>Create Role
+    </a>
+</div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fa-solid fa-circle-check me-2"></i>
         @TempData["SuccessMessage"]
-     </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Role</a>
-</p>
+@if (!Model.Any())
+{
+    <div class="admin-empty-state">
+        <i class="fa-solid fa-user-shield"></i>
+        <h2>No roles yet</h2>
+        <p>Create a role to begin organizing access.</p>
+        <a asp-action="Create" class="btn btn-primary">Create First Role</a>
+    </div>
+}
+else
+{
+    <div class="card admin-table-card">
+        <div class="table-responsive">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Description</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var role in Model)
+                {
+                    var iconClass = role.RoleImageURL?.StartsWith("fa-solid fa-") == true
+                        ? role.RoleImageURL
+                        : "fa-solid fa-shield-halved";
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Role Name</th>
-            <th>Description</th>
-            <th>Image URL</th>
-            <th>Normalized Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var role in Model)
-        {
-            <tr>
-                <td>@role.Name</td>
-                <td>@role.RoleDescription</td>
-                <td>@role.RoleImageURL</td>
-                <td>@role.NormalizedName</td>
-                
-                <td>
-                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-warning">Edit</a>
-                    
-                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" style="display:inline">
-                        
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">
-                            Delete
-                        </button>
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="role-icon-badge">
+                                    <i class="@iconClass"></i>
+                                </span>
+                                <div>
+                                    <div class="fw-semibold text-dark">@role.Name</div>
+                                    <div class="small text-muted">@role.NormalizedName</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-muted">
+                            @(string.IsNullOrWhiteSpace(role.RoleDescription)
+                                ? "No description provided."
+                                : role.RoleDescription)
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-action="Edit" asp-route-id="@role.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-pen me-1"></i>Edit
+                                </a>
 
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                                <form asp-action="Delete" asp-route-id="@role.Id" method="post">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Delete this role?');">
+                                        <i class="fa-solid fa-trash me-1"></i>Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

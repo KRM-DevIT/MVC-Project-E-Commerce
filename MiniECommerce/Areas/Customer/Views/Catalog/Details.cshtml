@@ -1,10 +1,11 @@
 ﻿@model Product
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewData["Title"] = Model.ProductName;
     bool outOfStock = Model.StockQuantity == 0;
     bool lowStock = Model.StockQuantity is > 0 and <= 5;
+    bool isCustomer = User.IsInRole("Customer");
+    bool isAdmin = User.IsInRole("Admin");
+    string returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
 @section Styles {
@@ -116,6 +117,17 @@
     &#8592; Back to Collection
 </a>
 
+@if (isAdmin)
+{
+    <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+        <span><strong>Storefront preview:</strong> customers can buy this active product; purchasing is disabled for administrators.</span>
+        <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId"
+           class="btn btn-sm btn-outline-primary">
+            Edit product
+        </a>
+    </div>
+}
+
 <div class="row g-5 align-items-start">
 
     <!-- ── Left: Image ── -->
@@ -186,7 +198,7 @@
         <!-- Add to cart -->
         <div class="mb-4">
             
-            @if (SignInManager.IsSignedIn(User))
+            @if (isCustomer)
             {
                 <form asp-area="Customer" asp-controller="Cart" asp-action="AddAndGoToCart" method="post">
                     @* Send the quantity as a route value *@
@@ -209,13 +221,21 @@
                     </button>
                 </form>
             }
-
+            else if (isAdmin)
+            {
+                <a asp-area="Admin" asp-controller="Product" asp-action="Edit"
+                   asp-route-id="@Model.ProductId"
+                   class="btn-cart-lg d-block text-center text-decoration-none">
+                    Manage this product
+                </a>
+            }
             else
             {
                 <a asp-area="Customer" asp-controller="Account" asp-action="Login"
+                   asp-route-returnUrl="@returnUrl"
                    class="btn-cart-lg d-block text-center text-decoration-none"
                    style="line-height:2.8;">
-                    Login to Purchase
+                    Sign in to purchase
                 </a>
             }
 

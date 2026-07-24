@@ -27,7 +27,6 @@ namespace MiniECommerce.Areas.Admin.Controllers
         {
             var TotalCount = _productService.GetProductCount();
             int totalPages = (int)Math.Ceiling(TotalCount / (double)pageSize);
-            // server - side validation
             if (pageNumber > totalPages)
             {
                 pageNumber = totalPages;
@@ -56,7 +55,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
-            var product = _productService.GetProductById(id);
+            var product = _productService.GetProductWithCategory(id);
             if (product == null)
                 return RedirectToAction("NotFoundPage", "Error", new { area = "" });
             return View(product);
@@ -255,10 +254,14 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
             if (product == null)
             {
-                return RedirectToAction("NotFoundPage", "Error", new { area = "" });
+                return RedirectToAction(
+                    "NotFoundPage",
+                    "Error",
+                    new { area = "" });
             }
 
-            _productService.DeleteImage(product.ImageUrl);
+            var productName = product.ProductName;
+            var imagePath = product.ImageUrl;
 
             bool result = _productService.DeleteProduct(id);
 
@@ -271,17 +274,32 @@ namespace MiniECommerce.Areas.Admin.Controllers
             try
             {
                 _unitOfWork.SaveChanges();
-
-                TempData["SuccessMessage"] = $"'{product.ProductName}' was deleted successfully.";
-
-                return RedirectToAction(nameof(Index));
             }
+
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "An error occurred while deleting the product.";
+                TempData["ErrorMessage"] =
+                    "The product could not be deleted. It may be referenced by an existing order.";
 
                 return RedirectToAction(nameof(Details), new { id });
             }
+
+            try
+            {
+                _productService.DeleteImage(imagePath);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] =
+                    $"'{productName}' was deleted, but its old image could not be removed.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["SuccessMessage"] =
+                $"'{productName}' was deleted successfully.";
+
+            return RedirectToAction(nameof(Index));
         }
 
     }

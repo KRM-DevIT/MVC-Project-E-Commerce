@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<ApplicationUser> SignInManager
 @inject MiniECommerce.Services.CartService CartService
 
 <nav class="customer-nav">
@@ -19,9 +18,9 @@
         <!-- Links wrapper -->
         <div class="nav-links-wrapper" id="navLinksWrapper">
 
-            @if (SignInManager.IsSignedIn(User))
+            @if (User.IsInRole("Customer"))
             {
-                <!-- Logged in -->
+                <!-- Customer navigation -->
                 <ul class="nav-links">
                     <li>
                         <a asp-area="Customer" asp-controller="Catalog" asp-action="Index">
@@ -50,10 +49,47 @@
                     </li>
                 </ul>
             }
+            else if (User.IsInRole("Admin"))
+            {
+                <!-- Administrator storefront preview -->
+                <ul class="nav-links">
+                    <li>
+                        <span class="nav-preview-label">Storefront preview</span>
+                    </li>
+                    <li>
+                        <a asp-area="Customer" asp-controller="Catalog" asp-action="Index">
+                            Browse
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-controller="Product" asp-action="Index">
+                            Manage products
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                           class="btn-nav-login">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <form asp-area="Admin" asp-controller="Account" asp-action="AdminLogout" method="post">
+                            <button type="submit" class="btn-nav-logout">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            }
             else
             {
                 <!-- Logged out -->
                 <ul class="nav-links">
+                    <li>
+                        <a asp-area="Customer" asp-controller="Catalog" asp-action="Index">
+                            Browse
+                        </a>
+                    </li>
                     <li>
                         <a asp-area="Customer" asp-controller="Account"
                            asp-action="Login" class="btn-nav-login">

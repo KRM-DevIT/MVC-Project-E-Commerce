@@ -106,10 +106,15 @@ namespace MiniECommerce.Services
             return _repository.ProductsByCategory(categoryId);
         }
 
-        public List<Product> GetProductsWithPagination(int pageNumber, int pageSize) // pagination
+
+        public List<Product> GetProductsWithPagination(int pageNumber, int pageSize, bool activeOnly = false)
         {
-            return _repository.ProductsPaginated(pageNumber, pageSize);
-            
+            return _repository.ProductsPaginated( pageNumber, pageSize, activeOnly);
+        }
+
+        public int GetProductCount(bool activeOnly = false)
+        {
+            return _repository.GetProductsTotalCount(activeOnly);
         }
 
         public List<Product> SearchProductsByKeyword(string keyword) // search
@@ -127,11 +132,6 @@ namespace MiniECommerce.Services
         public List<Product> GetProductsByIDs(List<int> productIds)
         {
             return _repository.FilterProductsByIds(productIds);
-        }
-
-        public int GetProductCount()
-        {
-            return _repository.GetProductsTotalCount();
         }
 
         public string GenerateUniqueSKU(string productName, string categoryName)
@@ -177,6 +177,11 @@ namespace MiniECommerce.Services
         public List<Product> SearchProductsWithPagination(List<int> selectedcategories, string query, int pageNumber, int pageSize)
         {
             return _repository.SearchProductsWithPagination(selectedcategories, query, pageNumber, pageSize);
+        }
+
+        public Product? GetProductWithCategory(int productId)
+        {
+            return _repository.GetProductWithCategory(productId);
         }
     }
 }

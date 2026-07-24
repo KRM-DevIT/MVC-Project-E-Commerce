@@ -19,7 +19,10 @@ namespace MiniECommerce.Repositories
 
         public List<Category> CategoriesWithProducts()
         {
-            return _context.Categories.Include(p=>p.Products).ToList();
+            return _context.Categories
+                .Include(c => c.Products.Where(p => p.IsActive))
+                .AsNoTracking()
+                .ToList();
         }
 
         public Category? CategoryByName(string Name)

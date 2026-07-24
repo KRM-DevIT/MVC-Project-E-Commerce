@@ -4,6 +4,9 @@
     var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
+
+
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-4">
@@ -13,6 +16,9 @@
                 </div>
                 <div class="card-body">
                     <form asp-controller="Account" asp-action="AdminLogin" method="post">
+
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label"></label>
                             <input asp-for="Email" class="form-control" />

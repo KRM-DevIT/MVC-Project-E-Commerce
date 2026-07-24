@@ -27,7 +27,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         public IActionResult Create()
         {
             ViewBag.Action = "Create";
-            return View();
+            return View(new RoleViewModel());
         }
 
         [HttpPost]
@@ -78,7 +78,9 @@ namespace MiniECommerce.Areas.Admin.Controllers
                 Id = role.Id,
                 RoleName = role.Name!,
                 RoleDescription = role.RoleDescription,
-                RoleImageURL = role.RoleImageURL
+                RoleImageURL = role.RoleImageURL?.StartsWith("fa-solid fa-") == true
+                    ? role.RoleImageURL
+                    : "fa-solid fa-user-shield"
             };
             ViewBag.RoleId = role.Id;
             return View(model);

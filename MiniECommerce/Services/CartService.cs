@@ -76,7 +76,7 @@ namespace MiniECommerce.Services
             var cart = GetCart();
             var product = _productService.GetProductById(productId);
 
-            if (product == null)
+            if (product == null || !product.IsActive)
                 return AddToCartResult.ProductNotFound;
 
             if (quantity <= 0)
@@ -133,8 +133,10 @@ namespace MiniECommerce.Services
         {
             var cart = GetCart();
             var ProductDB = _productService.GetProductById(itemId);
-            if (ProductDB == null) return UpdateQuantityResult.ProductNotFound;            
             
+            if (ProductDB == null || !ProductDB.IsActive)
+                return UpdateQuantityResult.ProductNotFound;
+
             if (qty <= 0 || qty > ProductDB.StockQuantity)
             
             {            

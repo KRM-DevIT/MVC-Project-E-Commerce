@@ -46,7 +46,7 @@ namespace MiniECommerce.Services
                 Product? product = dbProducts
                     .FirstOrDefault(p => p.ProductId == cartItem.itemId);
 
-                if (product == null)
+                if (product == null || !product.IsActive)
                 {
                     return new CheckoutResult
                     {
@@ -84,7 +84,7 @@ namespace MiniECommerce.Services
                         OrderNumber = _orderService.GetUniqueOrderNumber()
                     };
 
-                    _orderService.CreateOrder(order); // one call — EF tracks the whole graph from here
+                  //one call — EF tracks the whole graph from here
 
                     bool orderCreated = _orderService.CreateOrder(order);
 
@@ -122,7 +122,7 @@ namespace MiniECommerce.Services
 
                         _productService.UpdateProduct(product);
                     }
-                    //======// Another Approch for the previous 2 steps========
+                    //======// Another Approch for the previous 2 steps in one========
                         //Order order = new()
                         //{
                         //    ApplicationUserId = UserId,
@@ -140,7 +140,7 @@ namespace MiniECommerce.Services
                         //    }).ToList()
                         //};
                     //===================================
-                    await Task.Delay(5000);
+                    await Task.Delay(3000);
 
                     await _unitOfWork.SaveChangesAsync();
 

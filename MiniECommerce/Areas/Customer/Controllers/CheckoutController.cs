@@ -137,10 +137,14 @@ namespace MiniECommerce.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Confirmation(int orderId)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
+            if(String.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
             // Fetch order to display confirmation
-            var order = _orderService.GetOrderWithDetails(orderId);
+            var order = _orderService.GetOrderForUser(userId,orderId);
             
             if (order == null || order.OrderId == 0)
             {

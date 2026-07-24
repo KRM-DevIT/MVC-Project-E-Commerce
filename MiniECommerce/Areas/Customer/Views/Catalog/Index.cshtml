@@ -1,14 +1,27 @@
 @model CatalogViewModel
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<ApplicationUser> SignInManager
-
 @{
     ViewData["Title"] = "Browse Products";
     bool isFiltered = Model.SelectedCategories.Any();
+    bool isCustomer = User.IsInRole("Customer");
+    bool isAdmin = User.IsInRole("Admin");
+    string returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/CustomerCatalogStyle.css" asp-append-version="true" />
+}
+
+@if (isAdmin)
+{
+    <div class="storefront-preview-banner" role="status">
+        <div>
+            <strong>Storefront preview</strong>
+            <span>You are seeing the active products exactly as customers do. Purchasing is disabled for administrators.</span>
+        </div>
+        <a asp-area="Admin" asp-controller="Product" asp-action="Index">
+            Manage products
+        </a>
+    </div>
 }
 
 <!-- Page Header -->
@@ -178,7 +191,7 @@
                                         Details
                                     </a>
 
-                                    @if (SignInManager.IsSignedIn(User))
+                                    @if (isCustomer)
                                     {
                                         <form style="flex:2;" id="cartForm-@product.ProductId">
                                             @Html.AntiForgeryToken()
@@ -189,11 +202,20 @@
                                             </button>
                                         </form>
                                     }
+                                    else if (isAdmin)
+                                    {
+                                        <a asp-area="Admin" asp-controller="Product" asp-action="Edit"
+                                           asp-route-id="@product.ProductId"
+                                           class="btn-cart text-center text-decoration-none">
+                                            Edit product
+                                        </a>
+                                    }
                                     else
                                     {
-                                        <a asp-area="Customer"  asp-controller="Account" asp-action="Login" class="btn-cart text-center text-decoration-none"
-                                           style="line-height:2.2;">
-                                            Login to Buy
+                                        <a asp-area="Customer" asp-controller="Account" asp-action="Login"
+                                           asp-route-returnUrl="@returnUrl"
+                                           class="btn-cart text-center text-decoration-none">
+                                            Sign in to buy
                                         </a>
                                     }
                                 </div>
@@ -274,90 +296,48 @@
 </div>
 
 @section Scripts {
+    @if (isCustomer)
+    {
+        <script>
+            const cartProducts =
+                @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CartProductIds));
 
-    <script>
-
-        const cartProducts =
-            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CartProductIds));
-
-    </script>
-
-
-    
-    <script>
-            
-            var counter = 0;
-            // const itemsList = [];
-           
             document.addEventListener("DOMContentLoaded", function () {
-
-            cartProducts.forEach(function(productId)
-            {
-
-                $("#cartItem-" + productId).prop("disabled", true);
-
+                cartProducts.forEach(function (productId) {
+                    $("#cartItem-" + productId).prop("disabled", true);
+                });
             });
 
-        });
-             function increaseCounterAndAjax(productId) 
-             {
+            function increaseCounterAndAjax(productId) {
+                let btn = $("#cartItem-" + productId);
+                btn.prop("disabled", true);
 
-                 // let existingItem = itemsList.find(item => item.productId === productId);
-
-                 // if (!existingItem) 
-                 // {
-                 //     existingItem = { productId: productId, StockQuantity: stockQuantity, QuantityAdded: 1 };
-                 //     itemsList.push(existingItem);
-                 // } 
-             
-                 // else 
-                 // {
-                 //     if (existingItem.QuantityAdded < existingItem.StockQuantity) 
-                 //     {
-                 //         existingItem.QuantityAdded++;
-                 //     }
-                 // }
-
-
-              let btn = $("#cartItem-" + productId);
-              btn.prop('disabled', true);
-              // if(existingItem.QuantityAdded >= existingItem.StockQuantity) nn case first time
-              // {
-              //    btn.prop('disabled', true);
-              // }
-              
-             // var counter = parseInt(localStorage.getItem('cartCounter') || '0');
-             // counter++;
-             // localStorage.setItem('cartCounter', counter);
-             // $("#cartCount").text(counter);
-
-
-             $.ajax({
-                 url: '@Url.Action("Add", "Cart", new { area = "Customer" })',
-                 type: 'POST',
-                 data: {
-                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
-                     productId: productId
-                 },
-
-                  success: function (response)
-                 {
-                     if(response.success)
-                     {
-                         $("#cartCount").text(response.count);
-                     }
-                 },
-
-                  error: function ()
-                    {
+                $.ajax({
+                    url: '@Url.Action("Add", "Cart", new { area = "Customer" })',
+                    type: "POST",
+                    data: {
+                        __RequestVerificationToken: $("#cartForm-" + productId + ' input[name="__RequestVerificationToken"]').val(),
+                        productId: productId
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            $("#cartCount").text(response.count);
+                        } else {
+                            btn.prop("disabled", false);
+                            alert("This product could not be added to the cart.");
+                        }
+                    },
+                    error: function () {
                         btn.prop("disabled", false);
-
                         alert("Couldn't add product to cart.");
                     }
-             });
-         }
+                });
+            }
+        </script>
+    }
 
-          function validateSearch() {
+    <script>
+        function validateSearch() {
             var input = document.getElementById('searchInput');
             var error = document.getElementById('searchError');
 

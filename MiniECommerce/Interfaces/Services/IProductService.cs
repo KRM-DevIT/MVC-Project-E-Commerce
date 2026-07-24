@@ -26,11 +26,14 @@ namespace MiniECommerce.Interfaces.Services
         List<Product> GetProductsByCategory(int categoryId);
 
         // Pagination
-        List<Product> GetProductsWithPagination(int pageNumber, int pageSize);
+        List<Product> GetProductsWithPagination(
+            int pageNumber,
+            int pageSize,
+            bool activeOnly = false);
+
+        int GetProductCount(bool activeOnly = false);
 
         List<Product> GetProductsByIDs(List<int> productIds);
-
-        int GetProductCount();
 
         string GenerateUniqueSKU(string productName , string categoryName);
 
@@ -43,5 +46,8 @@ namespace MiniECommerce.Interfaces.Services
         int GetProductsByCategoryCount(List<int> categoryIds);
         int GetSearchProductCount(List<int> selectedcategories, string query);
         List<Product> SearchProductsWithPagination(List<int> selectedcategories, string query, int pageNumber, int pageSize);
+
+        public Product? GetProductWithCategory(int productId);
+
     }
 }

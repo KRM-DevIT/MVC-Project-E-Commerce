@@ -41,10 +41,10 @@
 }
 else
 {
-    <div class="card shadow-sm">
+    <div class="card admin-table-card">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
+            <table class="table admin-table table-hover align-middle mb-0">
+                <thead>
                     <tr>
                         <th style="width: 40px;"></th>  @* expand toggle *@
                         <th>Order #</th>
@@ -113,6 +113,7 @@ else
 
                                 <select class="form-select form-select-sm order-status"
                                         style="width:auto"
+                                        asp-for="@order.Status"
                                         data-order-id="@order.OrderId"
                                         asp-items="Html.GetEnumSelectList<OrderStatus>()">
                                     @* This Code is similar to select list item in Drobdownlist but for enums(post enum number and modelstate auto cast it back *@
@@ -213,7 +214,9 @@ else
                 icon.textContent = '▶';
             }
         }
+
         var token = $('input[name="__RequestVerificationToken"]').val();
+
         $(document).on("change", ".order-status", function () {
 
             var myElement = $(this); // capture element that called for change
@@ -222,15 +225,21 @@ else
             var status = myElement.val(); //.val() method is used to get or set the value of HTML form elements
 
             $.ajax({
-                url: 'Admin/Order/UpdateStatus',
+                url: '@Url.Action("UpdateStatus", "Order", new { area = "Admin" })',
                 type: 'POST',
-                data: 
-                    {
-                        __RequestVerificationToken: token,
-                        orderId: orderId,
-                        status: status
-                    }
-                  });
+                data: {
+                    __RequestVerificationToken: token,
+                    orderId: orderId,
+                    status: status
+                },
+                success: function(response) {
+                    alert(response.message);
+                    window.location.reload();
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON?.message ?? "Could not update order status.");
+                }
+            });
         });
 
     </script>

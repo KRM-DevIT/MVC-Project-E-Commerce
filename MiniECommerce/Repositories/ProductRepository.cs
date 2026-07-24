@@ -18,20 +18,41 @@ namespace MiniECommerce.Repositories
            return _context.Products.Any(p=>p.SKU == SKU);   
         }
 
+        public Product? GetProductWithCategory(int productId)
+        {
+            return _context.Products
+                           .Include(p => p.Category)
+                           .FirstOrDefault(p => p.ProductId == productId);
+        }
+
         public List<Product> ProductsByCategory(int categoryId)
         {
            return _context.Products.Where(p=>p.CategoryId== categoryId).ToList(); 
         }
 
-        public List<Product> ProductsPaginated(int pageNumber, int pageSize)
+        public List<Product> ProductsPaginated(int pageNumber, int pageSize, bool activeOnly = false)
+        
         {
-            return _context.Products
-                           .OrderBy(p => p.ProductId)
-                           .Skip((pageNumber - 1) * pageSize)
-                           .Take(pageSize)
-                           .ToList();
+            IQueryable<Product> query = _context.Products
+                                                .Include(p => p.Category)
+                                                .AsNoTracking();
+
+            if (activeOnly)
+                query = query.Where(p => p.IsActive);
+
+            return query
+                .OrderBy(p => p.ProductId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
         }
 
+        public int GetProductsTotalCount(bool activeOnly = false)
+        {
+            return activeOnly
+                ? _context.Products.Count(p => p.IsActive)
+                : _context.Products.Count();
+        }
         public List<Product> SearchProducts(string keyword)
         {
             var query = _context.Products.AsQueryable();
@@ -54,22 +75,17 @@ namespace MiniECommerce.Repositories
             return _context.Products.Where(p=>productIds.Contains(p.ProductId)).ToList();
         }
 
-        public int GetProductsTotalCount()
-        {
-            return _context.Products.Count();
-        }
-
         public int GetProductsByCategoryCount(List<int> categoryIds)
         {
             return _context.Products
-                            .Where(p => categoryIds.Contains(p.CategoryId))
+                            .Where(p => p.IsActive && categoryIds.Contains(p.CategoryId))
                             .Count();
         }
 
         public List<Product> GetProductsByCategoryWithPagination(List<int> categoryIds, int pageNumber, int pageSize)
         {
             return _context.Products
-                           .Where(p => categoryIds.Contains(p.CategoryId))
+                           .Where(p => p.IsActive && categoryIds.Contains(p.CategoryId))
                            .OrderBy(p => p.ProductId)
                            .Skip((pageNumber - 1) * pageSize)
                            .Take(pageSize)
@@ -80,18 +96,20 @@ namespace MiniECommerce.Repositories
         public int GetSearchProductCount(List<int> selectedcategories, string query)
         {
             bool HasCategoryFilter = selectedcategories != null && selectedcategories.Count > 0;
+            
             decimal? priceQuery;
 
             if (decimal.TryParse(query, out var parsed))
             {
                 priceQuery = parsed;
             }
+            
             else
             {
                 priceQuery = null;
             }
 
-            return _context.Products.Where(  p => (!HasCategoryFilter || selectedcategories!.Contains(p.CategoryId)) &&
+            return _context.Products.Where(  p => p.IsActive && (!HasCategoryFilter || selectedcategories!.Contains(p.CategoryId)) &&
                                             (p.ProductName.Contains(query) ||
                                              p.SKU!.Contains(query) ||
                                             (priceQuery.HasValue && p.CurrentPrice >= priceQuery.Value && p.CurrentPrice < priceQuery.Value + 1))
@@ -113,12 +131,15 @@ namespace MiniECommerce.Repositories
                 priceQuery = null;
             }
 
-            return _context.Products.Where(  p => (!HasCategoryFilter || selectedcategories!.Contains(p.CategoryId)) &&
+            return _context.Products.Where(  p => p.IsActive && 
+                                            
+                                            (!HasCategoryFilter || selectedcategories!.Contains(p.CategoryId)) &&
                                             (p.ProductName.Contains(query) ||
                                              p.SKU!.Contains(query) ||
                                              p.Description!.Contains(query) ||
                                             (priceQuery.HasValue && p.CurrentPrice >= priceQuery.Value && p.CurrentPrice < priceQuery.Value + 1))
-                                          ) 
+                                          
+                                            ) 
                                    .OrderBy(p => p.ProductId)
                                    .Skip((pageNumber - 1) * pageSize)
                                    .Take(pageSize)

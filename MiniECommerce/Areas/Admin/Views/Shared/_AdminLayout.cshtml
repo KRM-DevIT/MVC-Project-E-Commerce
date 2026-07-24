@@ -1,30 +1,30 @@
-﻿    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>@ViewData["Title"] - Admin Panel</title>
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/AdminDashboard.css" asp-append-version="true" /> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/all.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/AdminDashboard.css" asp-append-version="true" />
 </head>
-            <body class="@(ViewData["BodyClass"] ?? "bg-light")">
-                <!-- Navbar -->
-                @await Html.PartialAsync("_AdminNavbarPartial")
+<body class="admin-shell d-flex flex-column min-vh-100 @(ViewData["BodyClass"] ?? string.Empty)">
+    @await Html.PartialAsync("_AdminNavbarPartial")
 
-                <!-- Main Content -->
-                <div class="container my-4">
-                    @RenderBody()
-                </div>
+    <main class="container-xl my-4 flex-grow-1 admin-main">
+        @RenderBody()
+    </main>
 
-                <!-- Footer -->
-                <footer class="bg-dark text-white text-center py-3 mt-4 ">
-                    &copy; 2026 Admin Panel
-                </footer>
+    <footer class="admin-footer py-3 mt-auto">
+        <div class="container-xl d-flex flex-column flex-sm-row justify-content-between gap-2">
+            <span>&copy; 2026 Mini Commerce Admin</span>
+            <span class="text-white-50">Secure store management workspace</span>
+        </div>
+    </footer>
 
-                <!-- Scripts -->
-                <script src="~/lib/jquery/dist/jquery.min.js"></script>
-                <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-                <script src="~/js/site.js" asp-append-version="true"></script>
-                @await RenderSectionAsync("Scripts", required: false)
-            </body>
-    </html>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

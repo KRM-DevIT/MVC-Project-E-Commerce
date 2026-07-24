@@ -27,28 +27,38 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateStatus(int OrderId, OrderStatus status)
+        public IActionResult UpdateStatus(int orderId, OrderStatus status)
         {
-            bool result = _orderService.UpdateOrderStatus(OrderId, status);
+            bool result = _orderService.UpdateOrderStatus(orderId, status);
 
             if (!result)
             {
-                TempData["ErrorMessage"] = $"Could not update status for order #{OrderId}.";
-                return RedirectToAction(nameof(Index));
+                return BadRequest(new
+                {
+                    success = false,
+                    message = $"Could not update status for order #{orderId}."
+                });
             }
 
             try
             {
                 _unitOfWork.SaveChanges();
 
-                TempData["SuccessMessage"] = "Order status updated successfully.";
+                return Ok(new
+                {
+                    success = true,
+                    message = "Order status updated successfully.",
+                    status = status.ToString()
+                });
             }
-            catch (Exception)
+            catch
             {
-                TempData["ErrorMessage"] = $"Could not update status for order #{OrderId}.";
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Could not update status for order #{orderId}."
+                });
             }
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }
