@@ -1,8 +1,8 @@
-# ShopHub — MiniECommerce
+# ShopHub — ECommerce
 
 A full-stack e-commerce platform built with **ASP.NET Core 8 MVC**, featuring a customer storefront and a separate admin management panel, layered on a clean **Repository → Unit of Work → Service → Controller** architecture.
 
-> Repository name: `MiniECommerce` · Storefront brand: **ShopHub**
+> Repository name: `ECommerce` · Storefront brand: **ShopHub**
 
 ---
 
@@ -26,7 +26,7 @@ A full-stack e-commerce platform built with **ASP.NET Core 8 MVC**, featuring a 
 
 ## Overview
 
-MiniECommerce is a server-rendered MVC storefront split into two isolated **Areas** that share one codebase, one database, and one ASP.NET Core Identity store:
+ECommerce is a server-rendered MVC storefront split into two isolated **Areas** that share one codebase, one database, and one ASP.NET Core Identity store:
 
 - **Customer Area** — browse/search products, manage a session-based cart, check out, track orders, and manage shipping addresses.
 - **Admin Area** — manage the product catalog, categories, orders, staff roles, and view store-wide KPIs from a dashboard.
@@ -119,7 +119,7 @@ The app follows a strict top-down layering so controllers never talk to `DbConte
 ## Project Structure
 
 ```
-MiniECommerce/
+ECommerce/
 ├── Areas/
 │   ├── Admin/
 │   │   ├── Controllers/     # Account, Category, Dashboard, Order, Product, Role
@@ -260,7 +260,7 @@ Unauthenticated requests and access-denied cases are redirected to the **correct
 ### 1. Clone & restore
 ```bash
 git clone <repo-url>
-cd MiniECommerce
+cd ECommerce
 dotnet restore
 ```
 
