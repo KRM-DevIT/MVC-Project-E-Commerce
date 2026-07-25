@@ -56,7 +56,7 @@ namespace MiniECommerce.Areas.Customer.Controllers
         [AllowAnonymous]
         public IActionResult Details(int id)
         {
-            var product = _productService.GetProductById(id);
+            var product = _productService.GetProductWithCategory(id);
 
             if (product == null || !product.IsActive)
             {
