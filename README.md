@@ -18,7 +18,6 @@ A full-stack e-commerce platform built with **ASP.NET Core 8 MVC**, featuring a 
 - [Getting Started](#getting-started)
 - [Configuration Reference](#configuration-reference)
 - [Key Design Decisions](#key-design-decisions)
-- [Roadmap / Known Limitations](#roadmap--known-limitations)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -320,23 +319,6 @@ The app launches (per `launchSettings.json`) at `https://localhost:7059` / `http
 - **Area-aware auth redirects** — a single `ConfigureApplicationCookie` reads the current route's `area` to decide whether to redirect to `/Admin/Account/AdminLogin` or `/Customer/Account/Login`, keeping one Identity pipeline for two distinct login experiences.
 
 ---
-
-## Roadmap / Known Limitations
-
-This is an actively developed learning/portfolio project. Known gaps at the current stage:
-
-- [ ] No automated unit/integration test suite yet
-- [ ] Password reset & email confirmation flows are not wired up (token providers are configured, but no UI/email sender exists)
-- [ ] No real payment gateway — checkout places the order directly without a payment step
-- [ ] No product reviews/ratings
-- [ ] Global error handling is minimal (`ErrorController` only exposes a 404 page; no structured exception middleware)
-- [ ] No output caching for catalog/category data
-- [ ] No JSON/REST API surface (the app is fully server-rendered MVC)
-
-Contributions and PRs addressing any of the above are welcome — see below.
-
----
-
 ## Contributing
 
 1. Fork the repo and create a feature branch: `git checkout -b feature/your-feature`
