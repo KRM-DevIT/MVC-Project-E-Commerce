@@ -1,5 +1,9 @@
 ﻿@model Category
 
+@{
+    bool isFullAdmin = User.IsInRole(ApplicationRoles.Admin);
+}
+
 <div class="container mt-4">
 
     <div class="card shadow-sm">
@@ -30,11 +34,14 @@
 
         <div class="card-footer">
 
-            <a asp-action="Edit"
-               asp-route-id="@Model.CategoryId"
-               class="btn btn-primary">
-                Edit
-            </a>
+            @if (isFullAdmin)
+            {
+                <a asp-action="Edit"
+                   asp-route-id="@Model.CategoryId"
+                   class="btn btn-primary">
+                    Edit
+                </a>
+            }
 
             <a asp-action="Index"
                class="btn btn-secondary">

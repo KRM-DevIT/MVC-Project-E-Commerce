@@ -4,7 +4,12 @@
     bool outOfStock = Model.StockQuantity == 0;
     bool lowStock = Model.StockQuantity is > 0 and <= 5;
     bool isCustomer = User.IsInRole("Customer");
-    bool isAdmin = User.IsInRole("Admin");
+    bool isAdmin =
+        User.IsInRole(ApplicationRoles.Admin) ||
+        User.IsInRole(ApplicationRoles.DemoAdmin);
+    bool isDemoAdmin =
+        User.IsInRole(ApplicationRoles.DemoAdmin) &&
+        !User.IsInRole(ApplicationRoles.Admin);
     string returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
@@ -121,9 +126,11 @@
 {
     <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
         <span><strong>Storefront preview:</strong> customers can buy this active product; purchasing is disabled for administrators.</span>
-        <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId"
+        <a asp-area="Admin" asp-controller="Product"
+           asp-action="@(isDemoAdmin ? "Details" : "Edit")"
+           asp-route-id="@Model.ProductId"
            class="btn btn-sm btn-outline-primary">
-            Edit product
+            @(isDemoAdmin ? "Admin product view" : "Edit product")
         </a>
     </div>
 }
@@ -223,10 +230,11 @@
             }
             else if (isAdmin)
             {
-                <a asp-area="Admin" asp-controller="Product" asp-action="Edit"
+                <a asp-area="Admin" asp-controller="Product"
+                   asp-action="@(isDemoAdmin ? "Details" : "Edit")"
                    asp-route-id="@Model.ProductId"
                    class="btn-cart-lg d-block text-center text-decoration-none">
-                    Manage this product
+                    @(isDemoAdmin ? "View in admin" : "Manage this product")
                 </a>
             }
             else

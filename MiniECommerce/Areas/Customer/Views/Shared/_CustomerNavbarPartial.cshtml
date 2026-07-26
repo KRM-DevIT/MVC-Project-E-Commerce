@@ -49,7 +49,8 @@
                     </li>
                 </ul>
             }
-            else if (User.IsInRole("Admin"))
+            else if (User.IsInRole(ApplicationRoles.Admin) ||
+                     User.IsInRole(ApplicationRoles.DemoAdmin))
             {
                 <!-- Administrator storefront preview -->
                 <ul class="nav-links">
@@ -63,7 +64,10 @@
                     </li>
                     <li>
                         <a asp-area="Admin" asp-controller="Product" asp-action="Index">
-                            Manage products
+                            @(User.IsInRole(ApplicationRoles.DemoAdmin) &&
+                              !User.IsInRole(ApplicationRoles.Admin)
+                                ? "View products"
+                                : "Manage products")
                         </a>
                     </li>
                     <li>

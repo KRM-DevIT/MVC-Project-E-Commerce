@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace MiniECommerce.Areas.Admin.Controllers
 {
@@ -14,21 +12,18 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        private readonly RoleManager<ApplicationRole> _roleManager;
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            RoleManager<ApplicationRole> roleManager)
+            SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
         }
 
         #region Registration
 
         [HttpGet]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult AdminRegister()
         {
             return View(nameof(AdminRegister)); // only if view and action name are similer
@@ -36,7 +31,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> AdminRegister(AdminRegisterViewModel model)
         {
 
@@ -58,7 +53,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, "Admin");
+                await _userManager.AddToRoleAsync(user, ApplicationRoles.Admin);
 
                 return RedirectToAction(nameof(AdminLogin)); // regiter success go to login
             }
@@ -71,7 +66,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
             return View(nameof(AdminRegister),model);
         }
 
-        #endregion 
+        #endregion
 
         #region Login
 
@@ -82,7 +77,8 @@ namespace MiniECommerce.Areas.Admin.Controllers
             // If already authenticated, no need to show login page
             if (User.Identity?.IsAuthenticated == true)
             {
-                if (User.IsInRole("Admin"))
+                if (User.IsInRole(ApplicationRoles.Admin) ||
+                    User.IsInRole(ApplicationRoles.DemoAdmin))
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }
@@ -117,7 +113,15 @@ namespace MiniECommerce.Areas.Admin.Controllers
                 return View(model);
             }
 
-            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            var isAdmin = await _userManager.IsInRoleAsync(
+                user,
+                ApplicationRoles.Admin);
+
+            var isDemoAdmin = await _userManager.IsInRoleAsync(
+                user,
+                ApplicationRoles.DemoAdmin);
+
+            if (!isAdmin && !isDemoAdmin)
             {
                 ModelState.AddModelError("", "You are not authorized.");
                 return View(model);
@@ -160,6 +164,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
             [HttpPost]
             [ValidateAntiForgeryToken]
+            [Authorize(Roles = ApplicationRoles.AdminOrDemoAdmin)]
             public async Task<IActionResult> AdminLogout()
             {
                  await _signInManager.SignOutAsync();
@@ -174,5 +179,3 @@ namespace MiniECommerce.Areas.Admin.Controllers
         }
     }
 }
-
- 

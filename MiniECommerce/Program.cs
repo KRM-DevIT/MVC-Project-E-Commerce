@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.Configuration;
-using MiniECommerce.Services;
 
 namespace MiniECommerce
 {
@@ -26,7 +25,8 @@ namespace MiniECommerce
 
             builder.Services.AddIdentity<ApplicationUser, ApplicationRole>
                 (
-                options => {
+                options =>
+                {
                     options.Password.RequireDigit = true;              // Require at least one number (0-9)
                     options.Password.RequireLowercase = true;          // Require at least one lowercase letter
                     options.Password.RequireUppercase = true;          // Require at least one uppercase letter
@@ -67,18 +67,18 @@ namespace MiniECommerce
                     var area = context.Request.RouteValues["area"]?.ToString();
 
                     string loginPath;
-              
-                        if (area == "Admin")
-                        {
-                            loginPath = "/Admin/Account/AdminLogin";
-                        }
 
-                        else
-                        {
-                            loginPath = "/Customer/Account/Login";
-                        }
+                    if (area == "Admin")
+                    {
+                        loginPath = "/Admin/Account/AdminLogin";
+                    }
 
-                    context.Response.Redirect(loginPath + "?ReturnUrl=" + Uri.EscapeDataString(context.Request.Path));               
+                    else
+                    {
+                        loginPath = "/Customer/Account/Login";
+                    }
+
+                    context.Response.Redirect(loginPath + "?ReturnUrl=" + Uri.EscapeDataString(context.Request.Path));
                     return Task.CompletedTask;
                 };
                 options.Events.OnRedirectToAccessDenied = context =>
@@ -102,21 +102,21 @@ namespace MiniECommerce
             //---------------------- Add-Dependency_Injection HERE ----------------------------
 
             #region InterfacesInjection
-                // Unit of Work pattern - centralized repository management
-                builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-                
-                builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-                builder.Services.AddScoped<IProductRepository, ProductRepository>();
-                builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-                builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-                builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-                builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+            // Unit of Work pattern - centralized repository management
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-                builder.Services.AddScoped<IProductService, ProductService>();
-                builder.Services.AddScoped<IOrderService, OrderService>();
-                builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-                builder.Services.AddScoped<ICategoryService, CategoryService>();
-                builder.Services.AddScoped<IAddressService, AddressService>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
             #endregion
 
             builder.Services.AddHttpContextAccessor(); // to be able to access the httpcontext in which we have session
@@ -156,14 +156,17 @@ namespace MiniECommerce
             //=================================================
             // SEED INITIAL DATA 
             // ============================================
-            
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
 
-                await DbInitializer.SeedAdminAsync(userManager, roleManager,app.Configuration);
+                await DbInitializer.SeedIdentityAsync(
+                    userManager,
+                    roleManager,
+                    app.Configuration);
             }
 
             app.Run();
@@ -172,20 +175,30 @@ namespace MiniECommerce
 
     public static class DbInitializer
     {
-        public static async Task SeedAdminAsync(UserManager<ApplicationUser> userManager,
-                                                RoleManager<ApplicationRole> roleManager, 
-                                                IConfiguration configuration)
+        public static async Task SeedIdentityAsync(UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
+            IConfiguration configuration)
         {
+            var rolesToSeed = new[]
+            {
+                ApplicationRoles.Admin,
+                ApplicationRoles.Customer,
+                ApplicationRoles.DemoAdmin
+            };
 
-            var rolesToSeed = new string[] { "Admin", "Customer" };
-            
             foreach (var roleName in rolesToSeed) // seeding the roles
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
                     await roleManager.CreateAsync(new ApplicationRole
                     {
-                        Name = roleName
+                        Name = roleName,
+                        RoleDescription = roleName == ApplicationRoles.DemoAdmin
+                            ? "Read-only access to the administration demo."
+                            : null,
+                        RoleImageURL = roleName == ApplicationRoles.DemoAdmin
+                            ? "fa-solid fa-eye"
+                            : null
                     });
                 }
             }
@@ -207,7 +220,55 @@ namespace MiniECommerce
                 };
 
                 await userManager.CreateAsync(user, password!);
-                await userManager.AddToRoleAsync(user, "Admin");
+                await userManager.AddToRoleAsync(user, ApplicationRoles.Admin);
+            }
+
+            await SeedDemoAdminAsync(userManager);
+        }
+
+        private static async Task SeedDemoAdminAsync(
+            UserManager<ApplicationUser> userManager)
+        {
+            var user = await userManager.FindByEmailAsync(
+                ApplicationRoles.DemoAdminEmail);
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = ApplicationRoles.DemoAdminEmail,
+                    Email = ApplicationRoles.DemoAdminEmail,
+                    EmailConfirmed = true,
+                    FirstName = "Demo",
+                    LastName = "Admin"
+                };
+
+                var createResult = await userManager.CreateAsync(user, ApplicationRoles.DemoAdminPassword);
+
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join("; ", createResult.Errors.Select(error => error.Description));
+
+                    throw new InvalidOperationException($"Could not create the Demo Admin account: {errors}");
+                }
+            }
+            else if (!await userManager.CheckPasswordAsync(user, ApplicationRoles.DemoAdminPassword))
+            {
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+
+                var resetResult = await userManager.ResetPasswordAsync(user, resetToken, ApplicationRoles.DemoAdminPassword);
+
+                if (!resetResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Could not set the Demo Admin password.");
+                }
+            }
+
+            if (!await userManager.IsInRoleAsync(user, ApplicationRoles.DemoAdmin))
+            {
+                await userManager.AddToRoleAsync(
+                    user,
+                    ApplicationRoles.DemoAdmin);
             }
         }
     }

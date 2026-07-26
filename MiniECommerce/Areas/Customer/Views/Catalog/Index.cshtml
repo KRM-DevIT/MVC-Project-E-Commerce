@@ -3,7 +3,12 @@
     ViewData["Title"] = "Browse Products";
     bool isFiltered = Model.SelectedCategories.Any();
     bool isCustomer = User.IsInRole("Customer");
-    bool isAdmin = User.IsInRole("Admin");
+    bool isAdmin =
+        User.IsInRole(ApplicationRoles.Admin) ||
+        User.IsInRole(ApplicationRoles.DemoAdmin);
+    bool isDemoAdmin =
+        User.IsInRole(ApplicationRoles.DemoAdmin) &&
+        !User.IsInRole(ApplicationRoles.Admin);
     string returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
@@ -37,7 +42,7 @@
                 <span class="gold-underline">Our Collection</span>
             }
         </h2>
-        
+
         <p class="text-muted small mb-0">
             @Model.TotalCount product@(Model.TotalCount != 1 ? "s" : "") available  @*Perfectionist*@
         </p>
@@ -71,8 +76,10 @@
 <div class="row g-4">
 
     <!-- ── Sidebar ── -->
-    <aside class="col-lg-2 col-md-3">
+    <aside class="col-lg-3 col-md-2">
+
         <div class="filter-sidebar">
+
             <div class="filter-title">Filters</div>
 
             <form method="get" asp-action="ProductsByCategory">
@@ -80,19 +87,121 @@
 
                 <div class="filter-section-label">Categories</div>
 
-                @foreach (var category in Model.Categories)
-                {
-                    <div class="filter-check">
-                        <input type="checkbox"
-                               name="Selectedcategories"
-                               value="@category.CategoryId"
-                               id="cat-@category.CategoryId" @*for label association*@ 
-                               @(Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "") />
+                @*Only 2 Levels depth categorization*@
 
-                        <label for="cat-@category.CategoryId">
-                            @category.CategoryName
-                            <span class="cat-count">@category.Products.Count</span>
-                        </label>
+                @{
+                    var parentCategories = Model.Categories
+                        .Where(category => category.ParentCategoryId == null)
+                        .OrderBy(category => category.CategoryName)
+                        .ToList();
+
+                    var directChildIds = parentCategories
+                        .SelectMany(parent => Model.Categories.Where(category => category.ParentCategoryId == parent.CategoryId))
+                        .Select(category => category.CategoryId)
+                        .ToHashSet();
+
+                    var ungroupedCategories = Model.Categories
+                        .Where(category =>category.ParentCategoryId != null && !directChildIds.Contains(category.CategoryId))
+                        .OrderBy(category => category.CategoryName)
+                        .ToList();
+                }
+
+                @foreach (var parent in parentCategories)
+                {
+                    var children = Model.Categories
+                        .Where(category => category.ParentCategoryId == parent.CategoryId)
+                        .OrderBy(category => category.CategoryName)
+                        .ToList();
+
+                    @if (children.Any())
+                    {
+                        <div class="category-filter-group">
+                            <div class="category-parent-heading">
+                                <span>@parent.CategoryName</span>
+                                <span class="category-group-count">
+                                    @(parent.Products.Count + children.Sum(category => category.Products.Count))
+                                </span>
+                            </div>
+
+                            <div class="category-children">
+                                @if (parent.Products.Any())
+                                {
+                                    <div class="filter-check">
+                                        <input type="checkbox"
+                                               name="Selectedcategories"
+                                               value="@parent.CategoryId"
+                                               id="cat-@parent.CategoryId"
+                                               @(Model.SelectedCategories.Contains(parent.CategoryId) ? "checked" : "") />
+
+                                        <label for="cat-@parent.CategoryId">
+                                            General
+                                            <span class="cat-count">@parent.Products.Count</span>
+                                        </label>
+                                    </div>
+                                }
+
+                                @foreach (var child in children)
+                                {
+                                    <div class="filter-check">
+                                        <input type="checkbox"
+                                               name="Selectedcategories"
+                                               value="@child.CategoryId"
+                                               id="cat-@child.CategoryId"
+                                               @(Model.SelectedCategories.Contains(child.CategoryId) ? "checked" : "") />
+
+                                        <label for="cat-@child.CategoryId">
+                                            @child.CategoryName
+                                            <span class="cat-count">@child.Products.Count</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="filter-check category-standalone">
+                            <input type="checkbox"
+                                   name="Selectedcategories"
+                                   value="@parent.CategoryId"
+                                   id="cat-@parent.CategoryId"
+                                   @(Model.SelectedCategories.Contains(parent.CategoryId) ? "checked" : "") />
+
+                            <label for="cat-@parent.CategoryId">
+                                @parent.CategoryName
+                                <span class="cat-count">@parent.Products.Count</span>
+                            </label>
+                        </div>
+                    }
+                }
+
+                @if (ungroupedCategories.Any())
+                {
+                    <div class="category-filter-group">
+                        <div class="category-parent-heading">
+                            <span>Other</span>
+                            <span class="category-group-count">
+                                @ungroupedCategories.Sum(category => category.Products.Count)
+                            </span>
+                        </div>
+
+                        <div class="category-children">
+                            @foreach (var category in ungroupedCategories)
+                            {
+                                <div class="filter-check">
+                                    <input type="checkbox"
+                                           name="Selectedcategories"
+                                           value="@category.CategoryId"
+                                           id="cat-@category.CategoryId"
+                                           @(Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "") />
+
+                                    <label for="cat-@category.CategoryId">
+                                        @category.CategoryName
+                                        <span class="cat-count">@category.Products.Count</span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
                     </div>
                 }
 
@@ -102,12 +211,13 @@
                 {
                     <a asp-action="Index" class="btn-clear">✕ Clear filters</a>
                 }
+
             </form>
         </div>
     </aside>
 
     <!-- ── Products Grid ── -->
-    <div class="col-lg-10 col-md-9">
+    <div class="col-lg-9 col-md-10">
 
         @*Upper Part that shows applied Filters*@
         @if (isFiltered)
@@ -204,11 +314,24 @@
                                     }
                                     else if (isAdmin)
                                     {
-                                        <a asp-area="Admin" asp-controller="Product" asp-action="Edit"
-                                           asp-route-id="@product.ProductId"
-                                           class="btn-cart text-center text-decoration-none">
-                                            Edit product
-                                        </a>
+                                        @if (isDemoAdmin)
+                                        {
+                                            <a asp-area="Admin" asp-controller="Product"
+                                               asp-action="Details"
+                                               asp-route-id="@product.ProductId"
+                                               class="btn-cart text-center text-decoration-none">
+                                                Admin view
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-area="Admin" asp-controller="Product"
+                                               asp-action="Edit"
+                                               asp-route-id="@product.ProductId"
+                                               class="btn-cart text-center text-decoration-none">
+                                                Edit product
+                                            </a>
+                                        }
                                     }
                                     else
                                     {
@@ -348,7 +471,7 @@
             } else {
                 input.classList.remove('is-invalid');
                 error.style.display = 'none';
-                return true; 
+                return true;
             }
         }
     </script>

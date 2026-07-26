@@ -6,7 +6,7 @@ using MiniECommerce.Areas.Admin.ViewModels.CategoryViewModels;
 namespace MiniECommerce.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = ApplicationRoles.AdminOrDemoAdmin)]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
@@ -24,6 +24,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Create()
         {
           var CategoryList = _categoryService.CategoryDropDownList();
@@ -33,6 +34,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Create(CategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -82,6 +84,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Edit(int id)
         {
             var category = _categoryService.GetCategoryById(id);
@@ -102,6 +105,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Edit(int id, CategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -145,6 +149,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Delete(int id)
         {
             var category = _categoryService.GetCategoryById(id);
@@ -159,6 +164,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult DeleteConfirmed(int id)
         {
             bool result = _categoryService.DeleteCategory(id);

@@ -1,333 +1,198 @@
-# ShopHub — ECommerce
+# ShopHub - ASP.NET Core MVC E-Commerce
 
-A full-stack e-commerce platform built with **ASP.NET Core 8 MVC**, featuring a customer storefront and a separate admin management panel, layered on a clean **Repository → Unit of Work → Service → Controller** architecture.
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-MVC-512BD4)
+![Entity Framework Core](https://img.shields.io/badge/Entity_Framework_Core-8.0-6C3483)
+![SQL Server](https://img.shields.io/badge/Database-SQL_Server-CC2927?logo=microsoftsqlserver)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-> Repository name: `ECommerce` · Storefront brand: **ShopHub**
+ShopHub is a full-stack e-commerce web application I built with ASP.NET Core MVC. It covers the complete shopping flow, from browsing products and managing a cart to checkout and order tracking, together with an administration area for managing the store.
 
----
+I created this project to apply the MVC pattern in a realistic application and gain hands-on experience with authentication, role-based authorization, session state, AJAX requests, database relationships, and layered application design.
 
-## Table of Contents
+## What can you do in ShopHub?
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Domain Model](#domain-model)
-- [Areas & Routing](#areas--routing)
-- [Getting Started](#getting-started)
-- [Configuration Reference](#configuration-reference)
-- [Key Design Decisions](#key-design-decisions)
-- [Contributing](#contributing)
-- [License](#license)
+### Customer experience
 
----
+- Create an account and sign in securely.
+- Browse a paginated product catalog.
+- Search products and filter them through parent and child categories.
+- View product information, price, availability, and stock status.
+- Add products to the cart without reloading the page.
+- Update quantities or remove items through AJAX requests.
+- Keep cart data between requests using ASP.NET Core Session.
+- Save and manage shipping addresses.
+- Complete checkout with stock validation and database transactions.
+- Review previous orders and their current status.
 
-## Overview
+### Admin experience
 
-ECommerce is a server-rendered MVC storefront split into two isolated **Areas** that share one codebase, one database, and one ASP.NET Core Identity store:
+- View store statistics, recent orders, and low-stock products from the dashboard.
+- Create, edit, view, and delete products.
+- Upload product images and generate unique SKUs.
+- Manage parent and child categories.
+- Review orders and expand them to see customer, shipping, and item information.
+- Change an order's status through AJAX.
+- Create administrator accounts and manage roles.
+- Preview the storefront from an administrator account.
 
-- **Customer Area** — browse/search products, manage a session-based cart, check out, track orders, and manage shipping addresses.
-- **Admin Area** — manage the product catalog, categories, orders, staff roles, and view store-wide KPIs from a dashboard.
+### Read-only Demo Admin
 
-Authorization is role-based (`Admin`, `Customer`), and the app intelligently redirects unauthenticated or unauthorized users to the correct area-specific login/access-denied page.
+Recruiters and reviewers can explore the administration area without receiving permission to change store data.
 
----
+| | Demo credentials |
+|---|---|
+| Email | `demo.admin@shophub.com` |
+| Password | `DemoAdmin123!` |
+| Access | Dashboard, products, categories, orders, and product details |
 
-## Features
+The Demo Admin cannot create, edit, or delete data, update order statuses, create administrators, or manage roles. These restrictions are enforced by server-side authorization, not only by hiding buttons.
 
-### Customer-Facing
-- Product catalog with pagination, category filters, and keyword/price search
-- Product details page with live stock status
-- Session-backed shopping cart (AJAX add/update/remove, no page reloads)
-- Multi-step checkout with saved shipping addresses
-- Transactional order placement with stock validation and rollback on failure
-- Order history and per-order details
-- Address book (create, edit, delete, set default)
-- Self-registration and login
+## Technologies used
 
-### Admin Panel
-- Dashboard with KPIs: total/active products, total orders, pending orders, customer count, and revenue
-- Recent orders + low-stock alerts widgets
-- Product management: create/edit/delete, image upload with validation, auto-generated SKUs, pagination
-- Category management with parent/child hierarchy
-- Order management: expandable rows with shipped items, inline AJAX status updates
-- Role management: create/edit/delete roles with a selectable icon
-- Admin account creation restricted to existing admins
-- **Storefront preview mode** — admins can browse the live catalog exactly as customers see it, with purchase actions swapped for management shortcuts
+| Technology | How it is used |
+|---|---|
+| **C# and .NET 8** | Application logic and the ASP.NET Core runtime |
+| **ASP.NET Core MVC** | Models, Razor Views, controllers, routing, Areas, model binding, and validation |
+| **HTML5 and CSS3** | Page structure, responsive layouts, and custom styling |
+| **Bootstrap 5** | Responsive grid, navigation, forms, cards, tables, and reusable UI components |
+| **JavaScript and jQuery** | Client-side interaction and DOM updates |
+| **AJAX** | Cart actions and admin order-status updates without full page reloads |
+| **Razor** | Server-rendered, strongly typed views and reusable partial views |
+| **Entity Framework Core 8** | Data access, relationships, LINQ queries, and Code First migrations |
+| **SQL Server** | Persistent storage for users, products, categories, addresses, and orders |
+| **ASP.NET Core Identity** | Registration, login, password hashing, roles, authorization, and account lockout |
+| **ASP.NET Core Session** | JSON-serialized shopping-cart state kept across requests |
+| **Repository and Unit of Work** | Separation of data-access logic and coordinated database changes |
+| **Dependency Injection** | Connecting controllers, services, repositories, and infrastructure |
 
----
+## How the application is organized
 
-## Tech Stack
+ShopHub uses ASP.NET Core Areas to keep the customer and administration experiences separate while sharing the same services and database.
 
-| Layer            | Technology                                              |
-|-------------------|----------------------------------------------------------|
-| Framework          | ASP.NET Core 8.0 MVC (Areas)                             |
-| ORM                | Entity Framework Core 8.0.25 (Code-First + Migrations)   |
-| Database            | SQL Server                                               |
-| Auth                | ASP.NET Core Identity (custom `ApplicationUser` / `ApplicationRole`) |
-| Frontend            | Razor Views, Bootstrap 5, Font Awesome, jQuery + jQuery Unobtrusive Validation |
-| State                | Session-based cart (JSON-serialized into `ISession`)     |
-
----
-
-## Architecture
-
-The app follows a strict top-down layering so controllers never talk to `DbContext` directly:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        Presentation                            │
-│  Razor Views (Areas: Admin / Customer) — Bootstrap + jQuery    │
-│  Controllers → ViewModels / DTOs (no domain entities in forms) │
-└───────────────────────────┬──────────────────────────────────┘
-                             │
-┌───────────────────────────▼──────────────────────────────────┐
-│                        Service Layer                           │
-│  IProductService · ICategoryService · IOrderService            │
-│  IOrderItemService · IAddressService                            │
-│  CartService (session)  ·  CheckoutService (orchestration)      │
-└───────────────────────────┬──────────────────────────────────┘
-                             │
-┌───────────────────────────▼──────────────────────────────────┐
-│                Repository / Unit of Work                       │
-│  IRepository<T> generic CRUD + entity-specific repositories     │
-│  IUnitOfWork → SaveChanges / BeginTransaction                   │
-└───────────────────────────┬──────────────────────────────────┘
-                             │
-┌───────────────────────────▼──────────────────────────────────┐
-│                    Data Access — EF Core 8                     │
-│         ApplicationDbContext : IdentityDbContext<...>          │
-└───────────────────────────┬──────────────────────────────────┘
-                             │
-                    ┌────────▼────────┐
-                    │   SQL Server     │
-                    └──────────────────┘
+```text
+Browser
+  |
+  |  Razor Views + HTML + CSS + Bootstrap + JavaScript/AJAX
+  v
+MVC Controllers
+  |
+  |  ViewModels and DTOs
+  v
+Service Layer
+  |
+  |  Business rules and application workflows
+  v
+Repositories + Unit of Work
+  |
+  |  Entity Framework Core
+  v
+SQL Server
 ```
 
-**Why this shape:**
+- **Models** represent the main business entities: products, categories, users, addresses, orders, and order items.
+- **Views** render the storefront and admin interface using Razor, HTML, CSS, and Bootstrap.
+- **Controllers** receive HTTP requests, validate input, and delegate work to services.
+- **Services** contain business rules such as cart validation, SKU generation, checkout, stock management, and image handling.
+- **Repositories** contain database queries, while the Unit of Work coordinates saving and transactions.
 
-- **Repository + Unit of Work** — `Repository<T>` provides generic CRUD (`GetById`, `GetAll`, `Insert`, `Update`, `Delete`) against `DbSet<T>`. Entity-specific repositories (e.g. `IProductRepository`) extend it with specialized, query-shaped methods (pagination, filtering, DTO projection). `IUnitOfWork` owns `SaveChanges`/transactions so no service or controller touches `ApplicationDbContext` directly.
-- **Service Layer** — business rules live here, not in controllers: uniqueness checks (SKU, category name, order number), stock validation, image handling, SKU generation, and cart/checkout orchestration.
-- **Thin Controllers** — controllers map HTTP → ViewModel → Service call → View/redirect. No LINQ or EF-specific code in controllers.
-- **ViewModels & DTOs** — forms bind to purpose-built ViewModels (`ProductCreateViewModel`, `CategoryViewModel`, `CheckoutVM`, …) instead of raw entities; read-heavy admin/customer order views are served by projected DTOs (`OrderDto`) to avoid over-fetching and to decouple the view shape from the EF model.
-- **Dependency Injection** — every repository, service, and `IUnitOfWork` is registered as `Scoped` in `Program.cs`, keeping each HTTP request's `DbContext` and its dependents consistent for the lifetime of that request.
+## Project structure
 
----
-
-## Project Structure
-
-```
-ECommerce/
-├── Areas/
-│   ├── Admin/
-│   │   ├── Controllers/     # Account, Category, Dashboard, Order, Product, Role
-│   │   ├── ViewModels/      # Dashboard, Product*, Category*, Order*, Account*
-│   │   └── Views/           # Razor views + _AdminLayout + _AdminNavbarPartial
-│   └── Customer/
-│       ├── Controllers/     # Account, Address, Cart, Catalog, Checkout, Orders
-│       ├── ViewModels/      # Catalog, Checkout, Address, Account
-│       └── Views/           # Razor views + _CustomerLayout + _CustomerNavbarPartial
-├── Controllers/              # HomeController, ErrorController (site-wide)
-├── Data/                     # ApplicationDbContext (OnModelCreating, relationships, indexes)
-├── DTO/                      # OrderDto, OrderItemDto, OrderList
-├── Extensions/                # SessionExtensions (Cart <-> Session JSON)
-├── Interfaces/
-│   ├── Repositories/          # IRepository<T> + entity repos + IUnitOfWork
-│   └── Services/               # IProductService, ICategoryService, IOrderService, ...
-├── Migrations/                  # EF Core code-first migrations
-├── Models/                       # Product, Category, Order, OrderItem, Address
-│   └── IdentityModels/            # ApplicationUser, ApplicationRole
-├── Repositories/                  # Repository<T> + entity implementations + UnitOfWork
-├── Results/                        # Enums (OrderStatus, StockStatus, ...) + result types
-├── Services/                        # ProductService, CategoryService, CartService, CheckoutService, ...
-├── Views/                            # Shared root layout, Home views, validation partial
-├── wwwroot/                           # css / js / lib / Images (uploaded product photos)
-├── GlobalUsing.cs                      # Project-wide `global using` directives
-├── Program.cs                          # Composition root: DI, Identity, pipeline, seeding
-└── appsettings.json                    # Connection string & logging config
+```text
+MiniECommerce/
+|-- Areas/
+|   |-- Admin/              # Dashboard and store management
+|   `-- Customer/           # Catalog, cart, checkout, addresses, and orders
+|-- Controllers/            # Shared home and error controllers
+|-- Data/                   # EF Core DbContext and entity configuration
+|-- DTO/                    # Data shapes used by order views
+|-- Extensions/             # Session serialization helpers
+|-- Interfaces/
+|   |-- Repositories/
+|   `-- Services/
+|-- Migrations/             # EF Core database migrations
+|-- Models/                 # Domain and Identity models
+|-- Repositories/           # Repository and Unit of Work implementations
+|-- Services/               # Business and application services
+|-- Views/                  # Shared Razor views and layouts
+|-- wwwroot/                # CSS, JavaScript, libraries, and product images
+`-- Program.cs              # Dependency injection, middleware, and data seeding
 ```
 
----
+## A few implementation details
 
-## Domain Model
+- The cart is stored as JSON in `ISession`, allowing it to survive across requests without writing unfinished carts to the database.
+- Checkout validates every cart item against the latest database stock before creating an order.
+- Order creation, order items, and stock changes are committed inside one database transaction.
+- Order items store their purchase price so historical totals remain correct if a product price changes later.
+- Categories use a self-referencing relationship to support parent and child categories.
+- Products, categories, and order numbers use unique database indexes where appropriate.
+- Role-based authorization separates `Customer`, `Admin`, and read-only `DemoAdmin` access.
+- Anti-forgery validation protects state-changing form and AJAX requests.
 
-```mermaid
-erDiagram
-    CATEGORY ||--o{ CATEGORY : "parent / children"
-    CATEGORY ||--o{ PRODUCT : contains
-    PRODUCT ||--o{ ORDERITEM : "referenced by"
-    ORDER ||--o{ ORDERITEM : contains
-    ORDER }o--|| ADDRESS : "ships to"
-    ORDER }o--|| APPLICATIONUSER : "placed by"
-    ADDRESS }o--|| APPLICATIONUSER : "belongs to"
-    APPLICATIONUSER }o--o{ APPLICATIONROLE : "assigned via AspNetUserRoles"
+## Run the project locally
 
-    CATEGORY {
-        int CategoryId PK
-        string CategoryName
-        int ParentCategoryId FK
-    }
-    PRODUCT {
-        int ProductId PK
-        string ProductName
-        decimal CurrentPrice
-        string SKU
-        int StockQuantity
-        bool IsActive
-        int CategoryId FK
-    }
-    ORDER {
-        int OrderId PK
-        string OrderNumber
-        int Status
-        decimal TotalAmount
-        int ShippingAddressId FK
-        string ApplicationUserId FK
-    }
-    ORDERITEM {
-        int OrderItemId PK
-        decimal UnitPriceAtPurchase
-        int Quantity
-        decimal LineTotal
-        int OrderId FK
-        int ProductId FK
-    }
-    ADDRESS {
-        int AddressId PK
-        string Street
-        string City
-        string Country
-        bool IsDefault
-        string UserId FK
-    }
-    APPLICATIONUSER {
-        string Id PK
-        string FirstName
-        string LastName
-        string Email
-        bool IsActive
-    }
-```
+### Requirements
 
-**Notable modeling choices:**
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- SQL Server or SQL Server Express
+- Visual Studio 2022, Rider, or Visual Studio Code
 
-- `Category` is **self-referencing** (`ParentCategoryId` → `ParentCategory` / `ChildrenCategories`) to support nested category trees; the parent FK uses `ClientSetNull` to avoid multiple-cascade-path errors in SQL Server.
-- `Product.SKU` and `Category.CategoryName` are enforced unique at the database level (`SKU` uses a filtered unique index so multiple `NULL`s are allowed).
-- `OrderItem` stores `UnitPriceAtPurchase` and `LineTotal` as a **price snapshot** — historical orders stay accurate even if `Product.CurrentPrice` later changes.
-- Most FK relationships use `DeleteBehavior.Restrict` to prevent accidental cascade deletes across orders, users, and products.
+### 1. Clone the repository
 
----
-
-## Areas & Routing
-
-Routing is configured with an areas-first convention in `Program.cs`:
-
-```csharp
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-```
-
-| Path                                   | Description                          |
-|------------------------------------------|----------------------------------------|
-| `/`                                        | Public landing page                     |
-| `/Customer/Catalog`                        | Product browsing, search, filters       |
-| `/Customer/Cart`                            | Session cart                            |
-| `/Customer/Checkout`                         | Address selection & order placement     |
-| `/Customer/Orders`                            | Order history for the logged-in user    |
-| `/Customer/Account/Login` / `Register`         | Customer authentication                 |
-| `/Admin/Account/AdminLogin`                      | Admin authentication                    |
-| `/Admin/Dashboard`                                | KPI dashboard                          |
-| `/Admin/Product` / `/Admin/Category` / `/Admin/Order` / `/Admin/Role` | Store management |
-
-Unauthenticated requests and access-denied cases are redirected to the **correct area's** login/access-denied page automatically, based on the requested route's `area` value (`ConfigureApplicationCookie` events in `Program.cs`).
-
----
-
-## Getting Started
-
-### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
-- SQL Server (LocalDB, Express, or full instance)
-- `dotnet-ef` tool: `dotnet tool install --global dotnet-ef`
-
-### 1. Clone & restore
 ```bash
-git clone <repo-url>
-cd ECommerce
-dotnet restore
+git clone https://github.com/KRM-DevIT/MVC-Project-E-Commerce.git
+cd MVC-Project-E-Commerce/MiniECommerce
 ```
 
-### 2. Configure the connection string
-`appsettings.json` ships with a LocalDB-friendly default:
+### 2. Configure SQL Server
+
+Update the connection string in `appsettings.json` to match your SQL Server instance:
+
 ```json
 "ConnectionStrings": {
   "ConnectionString": "Server=.;Database=E-Commerce;Trusted_Connection=True;TrustServerCertificate=True;"
 }
 ```
-Update the `Server=` value to match your SQL Server instance if needed.
 
-### 3. Configure the seed admin (user secrets)
-On first run, `Program.cs` seeds the `Admin`/`Customer` roles and one admin account from configuration. These values are **not** committed to `appsettings.json` — set them via user secrets:
+### 3. Configure the first full Admin account
+
+The full administrator credentials are read from .NET user secrets and are not included in the repository:
+
 ```bash
-dotnet user-secrets init
-dotnet user-secrets set "SeedAdmin:Email" "admin@shophub.com"
+dotnet user-secrets set "SeedAdmin:Email" "admin@example.com"
 dotnet user-secrets set "SeedAdmin:Password" "YourStrongP@ssw0rd!"
 ```
 
-### 4. Apply migrations
+The read-only Demo Admin account is seeded automatically.
+
+### 4. Create the database
+
 ```bash
 dotnet ef database update
 ```
 
-### 5. Run
+If the Entity Framework CLI is not installed, install the .NET 8 version first:
+
+```bash
+dotnet tool install --global dotnet-ef --version 8.*
+```
+
+### 5. Start the application
+
 ```bash
 dotnet run
 ```
-The app launches (per `launchSettings.json`) at `https://localhost:7059` / `http://localhost:5075`. Uploaded product images are written to `wwwroot/Images` at runtime (created automatically if missing).
 
----
+Then open `https://localhost:7059` or `http://localhost:5075`.
 
-## Configuration Reference
+## Why I built this
 
-| Key                              | Purpose                                                       |
-|------------------------------------|------------------------------------------------------------------|
-| `ConnectionStrings:ConnectionString` | SQL Server connection string                                   |
-| `SeedAdmin:Email` *(user secret)*    | Email for the auto-seeded initial admin account                |
-| `SeedAdmin:Password` *(user secret)* | Password for the auto-seeded initial admin account              |
-| `Logging:LogLevel`                    | Standard ASP.NET Core logging configuration                    |
+This is a personal portfolio project, but I approached it as a real application rather than a collection of disconnected CRUD pages. The most valuable part of building ShopHub was connecting the complete flow: authentication, catalog browsing, session-based cart management, transactional checkout, inventory updates, order tracking, and role-aware administration.
 
-**Identity policy** (configured in `Program.cs`):
-- Password: min. 8 chars, requires uppercase, lowercase, digit, non-alphanumeric, 4 unique characters
-- Lockout: 5 failed attempts → 5-minute lockout
-- Cookie: `HttpOnly`, `SameSite=Lax`, 7-day expiration
-
----
-
-## Key Design Decisions
-
-- **Session-based cart, no `Cart` table** — the cart is a `Dictionary<int, CartItem>` serialized to JSON and stored in `ISession` (`SessionExtensions`). It's only materialized into `Order`/`OrderItem` rows at checkout, keeping guest-friendly, low-overhead cart state.
-- **Transactional checkout** — `CheckoutService` re-validates product availability/stock against the database, opens an EF Core transaction, creates the `Order` + `OrderItem`s, decrements stock, commits, and only then clears the cart. Any exception triggers a full rollback.
-- **SKU auto-generation** — `ProductService.GenerateUniqueSKU` builds a readable SKU from category and product name fragments plus a random numeric suffix; uniqueness is double-enforced at the service layer (`CheckUniquness`) and via a filtered unique index in the database.
-- **DTO projection at the query level** — `OrderRepository` uses a single reusable `Expression<Func<Order, OrderDto>>` projection so both admin ("all orders") and customer ("my orders") queries translate to efficient, shape-matched SQL instead of loading full entity graphs.
-- **One catalog UI, two roles** — the Customer catalog/detail views detect `User.IsInRole("Admin")` and swap "Add to Cart" for management shortcuts, so store managers can preview the live storefront without a separate read-only view.
-- **Area-aware auth redirects** — a single `ConfigureApplicationCookie` reads the current route's `area` to decide whether to redirect to `/Admin/Account/AdminLogin` or `/Customer/Account/Login`, keeping one Identity pipeline for two distinct login experiences.
-
----
-## Contributing
-
-1. Fork the repo and create a feature branch: `git checkout -b feature/your-feature`
-2. Keep controllers thin — put new business logic in a `Service`, new queries in a `Repository`
-3. Add/update EF Core migrations for any model changes: `dotnet ef migrations add <Name>`
-4. Open a pull request describing the change and its motivation
-
----
+The project demonstrates my experience working with server-rendered MVC applications and my understanding of how the frontend, business logic, persistence layer, and security concerns fit together in ASP.NET Core.
 
 ## License
 
-No license file is currently included in this repository. Add one (e.g. MIT) before distributing or accepting external contributions.
+This project is available under the [MIT License](LICENSE).

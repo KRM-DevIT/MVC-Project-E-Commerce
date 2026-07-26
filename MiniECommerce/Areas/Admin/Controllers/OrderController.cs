@@ -7,7 +7,7 @@ using MiniECommerce.Models;
 namespace MiniECommerce.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = ApplicationRoles.AdminOrDemoAdmin)]
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
@@ -27,6 +27,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult UpdateStatus(int orderId, OrderStatus status)
         {
             bool result = _orderService.UpdateOrderStatus(orderId, status);

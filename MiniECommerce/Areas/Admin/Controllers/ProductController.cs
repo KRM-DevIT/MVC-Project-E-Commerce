@@ -8,7 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace MiniECommerce.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = ApplicationRoles.AdminOrDemoAdmin)]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -64,6 +64,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         // ===================CREATE GET +=======================================
         [HttpGet]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Create()
         {
             var model = new ProductCreateViewModel()
@@ -77,6 +78,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         //===========================CREATE POST +=====================================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> CreateAsync(ProductCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -148,6 +150,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
 
         // ── EDIT GET ──────────────────────────────────────────────────────────────
         [HttpGet]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Edit(int id)
         {
             var product = _productService.GetProductById(id);
@@ -174,6 +177,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         // ── EDIT POST ─────────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public async Task<IActionResult> Edit(int id, ProductEditViewModel model)
         {
             if (id != model.ProductId)
@@ -248,6 +252,7 @@ namespace MiniECommerce.Areas.Admin.Controllers
         // ── DELETE POST ───────────────────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = ApplicationRoles.Admin)]
         public IActionResult Delete(int id)
         {
             var product = _productService.GetProductById(id);

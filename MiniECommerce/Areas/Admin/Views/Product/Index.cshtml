@@ -1,6 +1,7 @@
 ﻿@model ProductListViewModel
 @{
     ViewData["Title"] = "Products";
+    bool isFullAdmin = User.IsInRole(ApplicationRoles.Admin);
 }
 
 <!-- Page Header -->
@@ -9,7 +10,10 @@
         <h2 class="fw-bold mb-0">Products</h2>
         <p class="text-muted small mb-0">@Model.TotalCount products total</p>
     </div>
-    <a asp-action="Create" class="btn btn-dark">+ Add Product</a>
+    @if (isFullAdmin)
+    {
+        <a asp-action="Create" class="btn btn-dark">+ Add Product</a>
+    }
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -31,7 +35,10 @@
 {
     <div class="text-center py-5 text-muted">
         <p class="fs-5">No products yet.</p>
-        <a asp-action="Create" class="btn btn-dark">Add your first product</a>
+        @if (isFullAdmin)
+        {
+            <a asp-action="Create" class="btn btn-dark">Add your first product</a>
+        }
     </div>
 }
 else
@@ -107,10 +114,13 @@ else
                                class="btn btn-outline-dark btn-sm flex-grow-1">
                                 🔍 Details
                             </a>
-                            <a asp-action="Edit" asp-route-id="@product.ProductId"
-                               class="btn btn-dark btn-sm flex-grow-1">
-                                ✏️ Edit
-                            </a>
+                            @if (isFullAdmin)
+                            {
+                                <a asp-action="Edit" asp-route-id="@product.ProductId"
+                                   class="btn btn-dark btn-sm flex-grow-1">
+                                    ✏️ Edit
+                                </a>
+                            }
                         </div>
 
                     </div>

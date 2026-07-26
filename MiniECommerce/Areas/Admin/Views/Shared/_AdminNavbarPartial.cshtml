@@ -1,6 +1,13 @@
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 
+@{
+    bool canViewAdmin =
+        User.IsInRole(ApplicationRoles.Admin) ||
+        User.IsInRole(ApplicationRoles.DemoAdmin);
+
+}
+
 <nav class="navbar navbar-expand-xl navbar-dark admin-navbar shadow-sm">
     <div class="container-xl">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
@@ -26,7 +33,7 @@
                     </a>
                 </li>
 
-                @if (User.IsInRole("Admin"))
+                @if (canViewAdmin)
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">
@@ -43,16 +50,20 @@
                             <i class="fa-solid fa-layer-group me-1"></i> Categories
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="Admin" asp-controller="Account" asp-action="AdminRegister">
-                            <i class="fa-solid fa-user-plus me-1"></i> Create Admin
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="Admin" asp-controller="Role" asp-action="Index">
-                            <i class="fa-solid fa-user-shield me-1"></i> Roles
-                        </a>
-                    </li>
+                    @if (User.IsInRole(ApplicationRoles.Admin))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Account"
+                               asp-action="AdminRegister">
+                                <i class="fa-solid fa-user-plus me-1"></i> Create Admin
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Role" asp-action="Index">
+                                <i class="fa-solid fa-user-shield me-1"></i> Roles
+                            </a>
+                        </li>
+                    }
                 }
             </ul>
 

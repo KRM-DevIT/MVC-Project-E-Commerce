@@ -7,7 +7,7 @@ using MiniECommerce.Results;
 namespace MiniECommerce.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = ApplicationRoles.AdminOrDemoAdmin)]
     public class DashboardController : Controller
     {
         private readonly IProductService _productService;

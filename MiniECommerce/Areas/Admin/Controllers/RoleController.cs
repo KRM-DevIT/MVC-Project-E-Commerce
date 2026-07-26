@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MiniECommerce.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = ApplicationRoles.Admin)]
     public class RoleController : Controller
     {
         private readonly RoleManager<ApplicationRole> _roleManager;

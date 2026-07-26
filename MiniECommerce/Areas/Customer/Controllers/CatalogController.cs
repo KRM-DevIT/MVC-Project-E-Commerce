@@ -21,12 +21,13 @@ namespace MiniECommerce.Areas.Customer.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Index(int pageNumber = 1, int pageSize = 10)
+        public IActionResult Index(int pageNumber = 1, int pageSize = 12)
         {
             // Get Category List
             // Get Product List paginated
             var TotalCount = _productService.GetProductCount(activeOnly: true);
             int totalPages = (int)Math.Ceiling(TotalCount / (double)pageSize);
+
             // server - side validation
             if (pageNumber > totalPages)
             {
@@ -41,6 +42,7 @@ namespace MiniECommerce.Areas.Customer.Controllers
             var categories = _categoryService.GetCategoriesWithProducts();
             var products = _productService.GetProductsWithPagination(pageNumber, pageSize, activeOnly: true);
             var model = new CatalogViewModel
+            
             {
                 Categories = categories,
                 Products = products,
@@ -49,6 +51,7 @@ namespace MiniECommerce.Areas.Customer.Controllers
                 PageSize = pageSize,
                 CartProductIds = GetCustomerCartProductIds()
             };
+
             return View(nameof(Index),model);
         }
 

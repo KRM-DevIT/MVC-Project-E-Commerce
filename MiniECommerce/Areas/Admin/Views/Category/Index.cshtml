@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Categories";
+    bool isFullAdmin = User.IsInRole(ApplicationRoles.Admin);
 }
 
 <div class="container mt-4">
@@ -10,9 +11,13 @@
 
         <h2>Categories</h2>
 
-        <a asp-area="Admin" asp-controller="Category" asp-action="Create" class="btn btn-primary">
-            + Create Category
-        </a>
+        @if (isFullAdmin)
+        {
+            <a asp-area="Admin" asp-controller="Category" asp-action="Create"
+               class="btn btn-primary">
+                + Create Category
+            </a>
+        }
 
     </div>
 
@@ -49,11 +54,14 @@
 
                     <div class="card-footer bg-transparent d-flex justify-content-between">
 
-                        <a asp-area="Admin" asp-controller="Category" asp-action="Edit"
-                           asp-route-id="@category.CategoryId"
-                           class="btn btn-sm btn-outline-primary">
-                            Edit
-                        </a>
+                        @if (isFullAdmin)
+                        {
+                            <a asp-area="Admin" asp-controller="Category" asp-action="Edit"
+                               asp-route-id="@category.CategoryId"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+                        }
 
                         <a asp-area="Admin" asp-controller="Category" asp-action="Details"
                            asp-route-id="@category.CategoryId"
@@ -61,11 +69,14 @@
                             Details
                         </a>
 
-                        <a asp-area="Admin" asp-controller="Category" asp-action="Delete"
-                           asp-route-id="@category.CategoryId"
-                           class="btn btn-sm btn-outline-danger">
-                            Delete
-                        </a>
+                        @if (isFullAdmin)
+                        {
+                            <a asp-area="Admin" asp-controller="Category" asp-action="Delete"
+                               asp-route-id="@category.CategoryId"
+                               class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+                        }
 
                     </div>
 

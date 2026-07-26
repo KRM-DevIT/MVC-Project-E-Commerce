@@ -6,6 +6,7 @@
 
 @{
     ViewData["Title"] = "Orders";
+    bool isFullAdmin = User.IsInRole(ApplicationRoles.Admin);
 }
 
 <!-- Page Header -->
@@ -31,7 +32,10 @@
     </div>
 }
 
-<input type="hidden" name="__RequestVerificationToken" value="@Antiforgery.GetTokens(ViewContext.HttpContext).RequestToken" />
+@if (isFullAdmin)
+{
+    <input type="hidden" name="__RequestVerificationToken" value="@Antiforgery.GetTokens(ViewContext.HttpContext).RequestToken" />
+}
 
 @if (!Model.Orders.Any())
 {
@@ -52,7 +56,10 @@ else
                         <th>Date</th>
                         <th>Total</th>
                         <th>Status</th>
-                        <th>Update Status</th>
+                        @if (isFullAdmin)
+                        {
+                            <th>Update Status</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -107,27 +114,29 @@ else
 
 
 
-                            @* ── Inline status form — stop row click propagation *@
+                            @if (isFullAdmin)
+                            {
+                                @* ── Inline status form — stop row click propagation *@
+                                <td onclick="event.stopPropagation()"> @*We need this because the whole tr is clickable so we add this to stop the propagation when changing status *@
 
-                            <td onclick="event.stopPropagation()"> @*We need this because the whole tr is clickable so we add this to stop the propagation when changing status *@
+                                    <select class="form-select form-select-sm order-status"
+                                            style="width:auto"
+                                            asp-for="@order.Status"
+                                            data-order-id="@order.OrderId"
+                                            asp-items="Html.GetEnumSelectList<OrderStatus>()">
+                                        @* This Code is similar to select list item in Drobdownlist but for enums(post enum number and modelstate auto cast it back *@
 
-                                <select class="form-select form-select-sm order-status"
-                                        style="width:auto"
-                                        asp-for="@order.Status"
-                                        data-order-id="@order.OrderId"
-                                        asp-items="Html.GetEnumSelectList<OrderStatus>()">
-                                    @* This Code is similar to select list item in Drobdownlist but for enums(post enum number and modelstate auto cast it back *@
+                                    </select>
 
-                                </select>
-
-                            </td>
+                                </td>
+                            }
 
 
                         </tr>
 
                         @* ── Expanded row — hidden by default ── *@
                         <tr id="@rowId" class="d-none bg-light">
-                            <td colspan="7" class="px-4 py-3">
+                            <td colspan="@(isFullAdmin ? 7 : 6)" class="px-4 py-3">
                                 <div class="row g-3">
 
                                     @* Shipping address *@
@@ -194,7 +203,9 @@ else
 }
 
 @section Scripts {
-    <script>
+    @if (isFullAdmin)
+    {
+        <script>
         function toggleExpand(rowId) 
         {
             const row     = document.getElementById(rowId);
@@ -242,5 +253,20 @@ else
             });
         });
 
-    </script>
+        </script>
+    }
+    else
+    {
+        <script>
+            function toggleExpand(rowId) {
+                const row = document.getElementById(rowId);
+                const orderId = rowId.replace('expand-', '');
+                const icon = document.getElementById('icon-' + orderId);
+                const isHidden = row.classList.contains('d-none');
+
+                row.classList.toggle('d-none', !isHidden);
+                icon.textContent = isHidden ? '▼' : '▶';
+            }
+        </script>
+    }
 }

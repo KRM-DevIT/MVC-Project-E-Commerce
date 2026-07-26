@@ -31,11 +31,15 @@
                 }
                 else
                 {
-                    @if (User.IsInRole("Admin"))
+                    @if (User.IsInRole(ApplicationRoles.Admin) ||
+                         User.IsInRole(ApplicationRoles.DemoAdmin))
                     {
                         <li class="nav-item">
                             <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                                Admin Dashboard 🔰
+                                @(User.IsInRole(ApplicationRoles.DemoAdmin) &&
+                                  !User.IsInRole(ApplicationRoles.Admin)
+                                    ? "Demo Dashboard 👁️"
+                                    : "Admin Dashboard 🔰")
                             </a>
                         </li>
                         <li class="nav-item">

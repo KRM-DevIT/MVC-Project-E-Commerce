@@ -3,7 +3,8 @@
 
 @{
     ViewData["Title"] = "Dashboard";
-    ViewData["BodyClass"] = "body-dark";  
+    ViewData["BodyClass"] = "body-dark";
+    bool isFullAdmin = User.IsInRole(ApplicationRoles.Admin);
 }
 
 <div class="dash-header">
@@ -69,14 +70,17 @@
 
 <!-- ── Quick Actions ────────────────────────────────────────── -->
 <div class="quick-actions">
-    <a asp-area="Admin" asp-controller="Product" asp-action="Create"
-       class="quick-btn quick-btn-primary">
-        &#43; Add Product
-    </a>
-    <a asp-area="Admin" asp-controller="Category" asp-action="Create"
-       class="quick-btn quick-btn-green">
-        &#43; Add Category
-    </a>
+    @if (isFullAdmin)
+    {
+        <a asp-area="Admin" asp-controller="Product" asp-action="Create"
+           class="quick-btn quick-btn-primary">
+            &#43; Add Product
+        </a>
+        <a asp-area="Admin" asp-controller="Category" asp-action="Create"
+           class="quick-btn quick-btn-green">
+            &#43; Add Category
+        </a>
+    }
     <a asp-area="Admin" asp-controller="Category" asp-action="Index"
        class="quick-btn quick-btn-outline">
         ♻ All Categories
@@ -89,10 +93,13 @@
        class="quick-btn quick-btn-outline">
         &#128203; All Orders
     </a>
-    <a asp-area="Admin" asp-controller="Role" asp-action="Index"
-       class="quick-btn quick-btn-outline">
-        &#128737; Manage Roles
-    </a>
+    @if (isFullAdmin)
+    {
+        <a asp-area="Admin" asp-controller="Role" asp-action="Index"
+           class="quick-btn quick-btn-outline">
+            &#128737; Manage Roles
+        </a>
+    }
 </div>
 
 <!-- ── Two column tables ────────────────────────────────────── -->
