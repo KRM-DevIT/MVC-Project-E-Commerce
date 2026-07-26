@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MiniECommerce.Areas.Customer.ViewModels;
 using MiniECommerce.Models;
 using System.Security.Claims;
@@ -128,8 +129,16 @@ namespace MiniECommerce.Areas.Customer.Controllers
             if (address == null)
                 return NotFound();
 
-            _addressService.DeleteAddress(address);
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                _addressService.DeleteAddress(address);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] =
+                    "This address cannot be deleted because it is used by an existing order.";
+            }
 
             return RedirectToAction(nameof(Index));
         }

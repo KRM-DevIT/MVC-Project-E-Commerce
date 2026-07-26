@@ -34,10 +34,33 @@
                             <span class="cart-badge" id="cartCount">@CartService.GetAllCartItems().Count</span>
                         </a>
                     </li>
-                    <li>
-                        <a asp-area="Customer" asp-controller="Orders" asp-action="Index">
-                            &#128203; My Orders
-                        </a>
+                    <li class="dropdown nav-account-dropdown">
+                        <button class="nav-account-toggle dropdown-toggle"
+                                type="button"
+                                id="customerAccountMenu"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            &#128100; My Account
+                        </button>
+                        <ul class="dropdown-menu nav-account-menu"
+                            aria-labelledby="customerAccountMenu">
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-area="Customer"
+                                   asp-controller="Orders"
+                                   asp-action="Index">
+                                    &#128203; My Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-area="Customer"
+                                   asp-controller="Address"
+                                   asp-action="Index">
+                                    &#128205; My Addresses
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
                         <form asp-area="Customer" asp-controller="Account" asp-action="Logout" method="post">

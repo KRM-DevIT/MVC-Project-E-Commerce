@@ -167,6 +167,61 @@ a {
             font-weight: 600;
         }
 
+/* Customer account dropdown */
+.nav-account-dropdown {
+    position: relative;
+}
+
+.nav-account-toggle {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .45rem .9rem;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--brown-mid);
+    font-family: var(--font-body);
+    font-size: .88rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+}
+
+    .nav-account-toggle:hover,
+    .nav-account-toggle:focus,
+    .nav-account-dropdown:hover > .nav-account-toggle {
+        background: rgba(201,151,58,.1);
+        color: var(--gold);
+    }
+
+.nav-account-menu {
+    min-width: 180px;
+    padding: .4rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+}
+
+    .nav-account-menu .dropdown-item {
+        padding: .55rem .7rem;
+        border-radius: 6px;
+        color: var(--brown-mid);
+    }
+
+        .nav-account-menu .dropdown-item:hover,
+        .nav-account-menu .dropdown-item:focus {
+            background: rgba(201,151,58,.1);
+            color: var(--gold);
+        }
+
+@media (min-width: 769px) {
+    .nav-account-dropdown:hover > .nav-account-menu {
+        display: block;
+    }
+}
+
 /* Cart badge */
 .cart-link {
     position: relative;
@@ -300,6 +355,19 @@ a {
         .nav-links a {
             width: 100%;
         }
+
+    .nav-account-dropdown,
+    .nav-account-toggle {
+        width: 100%;
+    }
+
+    .nav-account-menu {
+        position: static !important;
+        width: 100%;
+        margin-top: .25rem !important;
+        transform: none !important;
+        box-shadow: none;
+    }
 }
 
 /* ── Page container ────────────────────────────────── */
