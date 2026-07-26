@@ -1,3 +1,5 @@
+Live Demo: http://shopthehub.runasp.net/
+
 # ShopHub - ASP.NET Core MVC E-Commerce
 
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
