@@ -65,12 +65,12 @@ namespace MiniECommerce.Areas.Customer.Controllers
             // Get user addresses
             var addresses = _addressService.GetAddresses(userId);
 
-            // Validate that user has at least one address
-            if (!addresses.Any())
-            {
-                TempData["WarningMessage"] = "Please add a shipping address to continue.";
-                return RedirectToAction("AddAddress", "Account");
-            }
+            //// Validate that user has at least one address
+            //if (!addresses.Any())
+            //{
+            //    TempData["WarningMessage"] = "Please add a shipping address to continue.";
+            //    return RedirectToAction("Create", "Address");
+            //}
 
             var checkoutVM = new CheckoutVM
             {
