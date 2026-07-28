@@ -1,17 +1,87 @@
-Live Demo: http://shopthehub.runasp.net/
-
 # ShopHub - ASP.NET Core MVC E-Commerce
 
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-MVC-512BD4)
+![Architecture](https://img.shields.io/badge/Architecture-Layered-0A66C2)
 ![Entity Framework Core](https://img.shields.io/badge/Entity_Framework_Core-8.0-6C3483)
 ![SQL Server](https://img.shields.io/badge/Database-SQL_Server-CC2927?logo=microsoftsqlserver)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-ShopHub is a full-stack e-commerce web application I built with ASP.NET Core MVC. It covers the complete shopping flow, from browsing products and managing a cart to checkout and order tracking, together with an administration area for managing the store.
+**Live Demo:** [shopthehub.runasp.net](http://shopthehub.runasp.net/)
 
-I created this project to apply the MVC pattern in a realistic application and gain hands-on experience with authentication, role-based authorization, session state, AJAX requests, database relationships, and layered application design.
+ShopHub is a full-stack e-commerce web application built with a **Layered Architecture** and **ASP.NET Core MVC**. It covers the complete shopping flow, from browsing products and managing a cart to checkout and order tracking, together with an administration area for managing the store.
+
+I created this project to apply architectural separation and common design patterns in a realistic application while gaining hands-on experience with authentication, role-based authorization, session state, AJAX requests, and relational data.
+
+## Architecture and design patterns
+
+> **Layered Architecture is the overall architectural style. MVC is the presentation pattern used inside its Presentation Layer. Repository and Unit of Work are design patterns used inside its Data Access Layer.**
+
+This distinction is important: MVC describes how web requests and UI concerns are organized, but it does not describe the structure of the complete application. ShopHub separates presentation, business workflows, and persistence into dedicated layers.
+
+| Concept | Classification | Responsibility in ShopHub |
+|---|---|---|
+| **Layered Architecture** | Architectural style | Defines the overall separation between presentation, business logic, and data access |
+| **MVC** | Presentation architectural pattern | Organizes controllers, Razor Views, models, ViewModels, routing, and model binding |
+| **Service Layer** | Application pattern | Holds business rules and coordinates use cases such as checkout and stock validation |
+| **Repository** | Data-access design pattern | Encapsulates EF Core queries and persistence operations behind interfaces |
+| **Unit of Work** | Data-access design pattern | Coordinates `SaveChanges` and database transactions across repositories |
+| **Dependency Injection** | Design technique | Supplies services and repositories through abstractions and keeps components loosely coupled |
+| **ViewModels and DTOs** | Boundary-model technique | Keeps form and display data separate from persistence entities |
+
+### Layered application flow
+
+```text
+Client / Browser
+       |
+       v
++--------------------------------------------------+
+| Presentation Layer                               |
+| ASP.NET Core MVC                                 |
+| Controllers | Razor Views | ViewModels | DTOs    |
++--------------------------------------------------+
+       |
+       v
++--------------------------------------------------+
+| Business Layer                                   |
+| Application Services                             |
+| Business rules | Checkout | Stock | SKU | Images |
++--------------------------------------------------+
+       |
+       v
++--------------------------------------------------+
+| Data Access Layer                                |
+| Repository Pattern | Unit of Work | EF Core      |
++--------------------------------------------------+
+       |
+       v
++--------------------------------------------------+
+| SQL Server                                       |
++--------------------------------------------------+
+```
+
+A typical request follows this direction:
+
+```text
+HTTP Request
+    -> Controller
+    -> Service
+    -> Repository
+    -> Entity Framework Core
+    -> SQL Server
+```
+
+The result returns through the same layers in reverse. Controllers do not query `ApplicationDbContext` directly, and Razor Views do not contain business or persistence logic.
+
+### Responsibilities of each layer
+
+- **Presentation Layer:** Handles HTTP requests, routing, model binding, validation, authorization, and rendering Razor Views.
+- **Business Layer:** Applies business rules and coordinates workflows such as cart validation, checkout, stock updates, SKU generation, and image handling.
+- **Data Access Layer:** Encapsulates queries and persistence through generic and entity-specific repositories.
+- **Database:** SQL Server stores application and ASP.NET Core Identity data, while EF Core maps the domain model and relationships.
+
+This structure makes responsibilities visible and keeps changes localized. A UI change should stay in the Presentation Layer, a business-rule change should stay in a service, and a query change should stay in a repository.
 
 ## What can you do in ShopHub?
 
@@ -68,36 +138,6 @@ The Demo Admin cannot create, edit, or delete data, update order statuses, creat
 | **ASP.NET Core Session** | JSON-serialized shopping-cart state kept across requests |
 | **Repository and Unit of Work** | Separation of data-access logic and coordinated database changes |
 | **Dependency Injection** | Connecting controllers, services, repositories, and infrastructure |
-
-## How the application is organized
-
-ShopHub uses ASP.NET Core Areas to keep the customer and administration experiences separate while sharing the same services and database.
-
-```text
-Browser
-  |
-  |  Razor Views + HTML + CSS + Bootstrap + JavaScript/AJAX
-  v
-MVC Controllers
-  |
-  |  ViewModels and DTOs
-  v
-Service Layer
-  |
-  |  Business rules and application workflows
-  v
-Repositories + Unit of Work
-  |
-  |  Entity Framework Core
-  v
-SQL Server
-```
-
-- **Models** represent the main business entities: products, categories, users, addresses, orders, and order items.
-- **Views** render the storefront and admin interface using Razor, HTML, CSS, and Bootstrap.
-- **Controllers** receive HTTP requests, validate input, and delegate work to services.
-- **Services** contain business rules such as cart validation, SKU generation, checkout, stock management, and image handling.
-- **Repositories** contain database queries, while the Unit of Work coordinates saving and transactions.
 
 ## Project structure
 

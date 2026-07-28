@@ -93,7 +93,7 @@
                         </div>
                         <div class="col-md-5">
                             <label class="form-label fw-semibold">Current Image</label>
-                            <div class="border rounded bg-light d-flex align-items-center
+                            <div class="border rounded bg-white d-flex align-items-center
                                         justify-content-center overflow-hidden"
                                  style="height: 120px;">
                                 @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
@@ -101,12 +101,12 @@
                                     <img id="previewImg"
                                          src="@Model.ExistingImageUrl"
                                          alt="Current image"
-                                         class="w-100 h-100 object-fit-cover" />
+                                         class="w-100 h-100 object-fit-contain p-2" />
                                 }
                                 else
                                 {
                                     <img id="previewImg" src="" alt="Preview"
-                                         class="w-100 h-100 object-fit-cover d-none" />
+                                         class="w-100 h-100 object-fit-contain p-2 d-none" />
                                     <span id="previewPlaceholder"
                                           class="text-muted small text-center px-2">
                                         🖼️ No image
