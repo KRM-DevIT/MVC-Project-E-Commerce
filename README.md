@@ -16,7 +16,7 @@ I created this project to apply architectural separation and common design patte
 
 ## Architecture and design patterns
 
-> **Layered Architecture is the overall architectural style. MVC is the presentation pattern used inside its Presentation Layer. Repository and Unit of Work are design patterns used inside its Data Access Layer.**
+> **The project follows a Layered Architecture. The Presentation layer is built with ASP.NET Core MVC, the business logic is organized into a dedicated Service layer, and data persistence is handled through Entity Framework Core using the Repository and Unit of Work patterns.**
 
 This distinction is important: MVC describes how web requests and UI concerns are organized, but it does not describe the structure of the complete application. ShopHub separates presentation, business workflows, and persistence into dedicated layers.
 
